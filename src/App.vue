@@ -2,18 +2,22 @@
 import TablePro from '@/components/TablePro.vue'
 import { NMessageProvider } from 'naive-ui'
 
-import { inject } from 'vue'
+import { inject, ref } from 'vue'
 import { TABLE_COMPONENTS_KEY } from './index'
 
 const injection = inject(TABLE_COMPONENTS_KEY)!
 
 console.log('[App] config:', injection.components)
 
-const inp = 'input'
+const showModal = ref(true)
 </script>
 
 <template>
-  <n-message-provider>
+  <n-modal-provider>
+    <n-message-provider>
       <TablePro />
-  </n-message-provider>
+
+      
+    </n-message-provider>
+  </n-modal-provider>
 </template>

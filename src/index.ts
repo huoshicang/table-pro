@@ -50,6 +50,8 @@ export type ComponentMap = {
   table?: Component
   /** 对话框 */
   dialog?: Component
+  /** 弹窗（Modal） */
+  modal?: Component
   /** 抽屉 */
   drawer?: Component
   /** 树形控件 */
@@ -242,6 +244,21 @@ export interface ComponentDefaultsConfig {
 export const defaultTableProConfig: TableProConfig = {
   debug: false,
   text: '没有传入值，使用默认值',
+  modalAdapter: {
+    visibleProp: 'show',
+    visibleEvent: 'update:show',
+  },
+}
+
+/** 弹窗（Modal）适配器配置
+ * @description 用于跨框架兼容：不同 UI 库的 modal 组件在 visible prop 名、事件名等方面可能不同，
+ * 通过此适配器统一映射，使 Modal.vue 无需感知底层使用的是 Naive UI / Ant Design / Element 等哪个库
+ */
+export interface ModalAdapter {
+  /** modal 组件的可见性 prop 名，如 'show' (Naive) / 'visible' (Ant Design / Element) */
+  visibleProp?: string
+  /** 可见性更新事件名，如 'update:show' / 'update:visible' */
+  visibleEvent?: string
 }
 
 /** 插件配置 */
@@ -261,6 +278,12 @@ export interface TableProConfig {
    * @example components: { form: { inline: true, labelPlacement: 'left' }, grid: { xGap: 16, yGap: 8 }, table: { size: 'small', striped: true } }
    */
   components?: ComponentDefaultsConfig
+  /**
+   * 弹窗组件适配器
+   * @description 跨框架兼容配置，用于映射 modal 组件的 visible prop 名和更新事件名
+   * @example modalAdapter: { visibleProp: 'visible', visibleEvent: 'update:visible' } // Ant Design / Element
+   */
+  modalAdapter?: ModalAdapter
 }
 
 /** 注入的数据类型 */

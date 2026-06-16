@@ -24,6 +24,7 @@ import {
   NDataTable,
   NDialog,
   NDrawer,
+  NModal,
   NTree,
   NUpload,
   NPagination,
@@ -79,6 +80,7 @@ app.use(TableProPlugin, {
     space: NSpace,
     table: NDataTable,
     dialog: NDialog,
+    modal: NModal,
     drawer: NDrawer,
     tree: NTree,
     upload: NUpload,
@@ -113,6 +115,8 @@ app.use(TableProPlugin, {
     debug: true,
     // 全局组件默认配置：各子组件可在此基础上传入 props 覆盖
     components: {
+      table:{},
+
       // n-grid 默认间距
       // n-form-item 默认 label 宽度和位置
       formItem: {
