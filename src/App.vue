@@ -46,11 +46,13 @@ const columns: TableColumn<RowData>[] = [
     title: '申请日期',
     sortable: true,
     config: { isSearch: true, type: 'datePicker' },
+    meta: { type: 'date', placeholder: '请选择日期' },
   },
   {
     key: 'leaveType',
     title: '请假类别',
     config: { isSearch: true, type: 'select' },
+    meta: { options: [{ label: '病假', value: '病假' }, { label: '年假', value: '年假' }, { label: '事假', value: '事假' }] },
   },
   { key: 'startTime', title: '请假开始时间' },
   { key: 'endTime', title: '请假结束时间' },

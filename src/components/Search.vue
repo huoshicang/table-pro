@@ -141,7 +141,7 @@ function handleReset() {
   const fv = formRendererRef.value?.formValue
   if (fv) {
     for (const field of props.schema) {
-      fv[field.name] = ''
+      fv[field.name] = undefined
     }
   }
   formData.value = fv ? { ...fv } : {}
