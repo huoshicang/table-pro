@@ -1,4 +1,6 @@
 import { defineConfig } from 'vitepress'
+import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 
 export default defineConfig({
   title: 'table-pro',
@@ -60,7 +62,7 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        '@': new URL('../../src', import.meta.url).pathname,
+        '@': resolve(fileURLToPath(import.meta.url), '../../../src'),
       },
     },
     ssr: {
