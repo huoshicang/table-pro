@@ -15,6 +15,7 @@ export default defineConfig({
       { text: '指南', link: '/guide/getting-started' },
       { text: '组件', link: '/components/table-pro' },
       { text: 'API', link: '/api/composables' },
+      { text: '在线演示', link: '/demo/index.html', target: '_blank' },
       { text: 'GitHub', link: 'https://github.com/huoshicang/table-pro' },
     ],
     sidebar: {

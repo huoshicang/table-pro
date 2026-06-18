@@ -2,6 +2,12 @@
 
 顶层编排组件，接收配置并协调 Search / Table / Pagination / Modal 子组件。
 
+## 完整演示
+
+下面是完整的 App.vue 演示，包含所有组件的实际运行效果：
+
+<DemoFrame title="TablePro 完整演示" height="700" />
+
 ## 基础用法
 
 ```vue live

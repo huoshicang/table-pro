@@ -1,5 +1,13 @@
 # 快速开始
 
+## 在线演示
+
+下面是完整的组件演示，可交互操作：
+
+<DemoFrame title="TablePro 在线演示" height="700" />
+
+[↗ 全屏打开演示](/table-pro/demo/index.html){target="_blank"}
+
 ## 安装
 
 ```sh

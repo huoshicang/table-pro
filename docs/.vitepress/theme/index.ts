@@ -22,6 +22,7 @@ import FormRenderer from '@/components/FormRenderer.vue'
 import PaginationComp from '@/components/Pagination.vue'
 import Modal from '@/components/Modal.vue'
 import TableAction from '@/components/TableAction.vue'
+import DemoFrame from './DemoFrame.vue'
 
 export default {
   extends: DefaultTheme,
@@ -95,5 +96,6 @@ export default {
     app.component('Pagination', PaginationComp)
     app.component('Modal', Modal)
     app.component('TableAction', TableAction)
+    app.component('DemoFrame', DemoFrame)
   },
 } satisfies Theme
