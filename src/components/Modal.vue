@@ -60,7 +60,7 @@ interface Props {
   rowData?: T | null
   /** 表单字段配置（由父组件从 columns 派生） */
   formSchema: SearchField[]
-  /** n-modal 的 props，合并时会覆盖全局配置中的同名字段 */
+  /** 弹窗组件的 props，合并时会覆盖全局配置中的同名字段 */
   modalProps?: ModalConfig
   /** 确认回调，按模式分发 */
   confirmHandlers?: ConfirmHandlers

@@ -1,6 +1,6 @@
 # Pagination 分页
 
-分页组件，封装 n-pagination，支持 v-model 双向绑定。
+分页组件，封装 pagination，支持 v-model 双向绑定。
 
 ## 基础用法
 
@@ -59,7 +59,7 @@ const pageSize = ref(20)
 | `pageSize` | `number` | `10` | 每页条数（v-model） |
 | `pageCount` | `number` | `1` | 总页数 |
 | `itemCount` | `number` | `0` | 总条目数 |
-| `paginationProps` | `PaginationConfig` | `{}` | n-pagination 的 props |
+| `paginationProps` | `PaginationConfig` | `{}` | pagination 的 props |
 
 ## PaginationConfig 配置
 

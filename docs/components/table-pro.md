@@ -69,12 +69,12 @@ const confirmHandlers = {
 |------|------|--------|------|
 | `columns` | `TableColumn[]` | — | 列配置（必传） |
 | `data` | `Record<string, unknown>[]` | `[]` | 表格数据 |
-| `formProps` | `FormConfig` | `{}` | 搜索表单的 n-form props |
+| `formProps` | `FormConfig` | `{}` | 搜索表单的 form props |
 | `confirmHandlers` | `ConfirmHandlers` | `{}` | Modal 确认回调（按模式分发） |
 | `page` | `number` | `1` | 当前页码（v-model） |
 | `pageSize` | `number` | `10` | 每页条数（v-model） |
 | `itemCount` | `number` | `0` | 总条目数 |
-| `paginationProps` | `PaginationConfig` | `{}` | n-pagination 的 props |
+| `paginationProps` | `PaginationConfig` | `{}` | pagination 的 props |
 
 ## Events
 

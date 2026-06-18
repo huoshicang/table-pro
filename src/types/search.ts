@@ -12,7 +12,7 @@ export interface SearchField {
   type?: keyof ComponentMap
   /** 传递给组件的额外 props */
   componentProps?: Record<string, unknown>
-  /** 在 n-grid 中占的列数（默认 1） */
+  /** 在 grid 中占的列数（默认 1） */
   span?: number
   /** 表单校验规则 */
   rules?: unknown[]

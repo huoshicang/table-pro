@@ -97,7 +97,7 @@ const schema = [
 | `mode` | `'add' \| 'edit' \| 'detail'` | `'add'` | 弹窗模式 |
 | `rowData` | `T \| null` | `null` | 编辑/详情时的行数据 |
 | `formSchema` | `SearchField[]` | `[]` | 表单字段配置 |
-| `modalProps` | `ModalConfig` | `{}` | n-modal 的 props |
+| `modalProps` | `ModalConfig` | `{}` | modal 的 props |
 | `confirmHandlers` | `ConfirmHandlers` | `{}` | 确认回调（按模式分发） |
 
 ## ModalConfig 配置

@@ -73,7 +73,7 @@ interface Props {
   columns: TableColumn[]
   /** 表格数据 */
   data?: Record<string, unknown>[]
-  /** n-form 的 props */
+  /** form 组件的 props */
   formProps?: FormConfig
   /** Modal 确认回调，按模式分发 */
   confirmHandlers?: ConfirmHandlers
@@ -83,7 +83,7 @@ interface Props {
   pageSize?: number
   /** 总条目数 */
   itemCount?: number
-  /** n-pagination 的 props，合并时会覆盖全局配置中的同名字段 */
+  /** 分页组件的 props，合并时会覆盖全局配置中的同名字段 */
   paginationProps?: PaginationConfig
 }
 

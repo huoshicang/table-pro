@@ -1,6 +1,6 @@
 # Table 数据表格
 
-数据表格组件，通过 ComponentMap 动态渲染 n-data-table。
+数据表格组件，通过 ComponentMap 动态渲染 data-table。
 
 ## 基础用法
 
@@ -108,7 +108,7 @@ const data = ref([
 | `data` | `T[]` | `[]` | 表格数据 |
 | `showAdd` | `boolean` | `true` | 显示新增按钮 |
 | `rowKey` | `string` | `'id'` | 行唯一标识字段 |
-| `tableProps` | `TableConfig` | `{}` | n-table 的 props |
+| `tableProps` | `TableConfig` | `{}` | table 的 props |
 
 ## TableColumn 配置
 

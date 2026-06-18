@@ -1,11 +1,11 @@
 <template>
-  <!-- 根节点：n-form 包裹全部字段，通过动态组件渲染 -->
+  <!-- 根节点：form 组件包裹全部字段，通过动态组件渲染 -->
   <component :is="Form" ref="formRef" :model="formValue" v-bind="mergedFormProps">
-    <!-- n-grid 提供栅格布局 -->
+    <!-- grid 组件提供栅格布局 -->
     <component :is="Grid" v-bind="mergedGridProps">
-      <!-- 每个字段的 n-grid-item -->
+      <!-- 每个字段的 grid-item -->
       <component :is="GridItem" v-for="field in schema" :key="field.name" :span="field.span ?? 1">
-        <!-- n-form-item：label / path / rule 来自 field 自身，基础 props 走全局合并 -->
+        <!-- form-item：label / path / rule 来自 field 自身，基础 props 走全局合并 -->
         <component
           :is="FormItem"
           :label="field.label"
@@ -53,11 +53,11 @@ interface Props {
   schema: SearchField[]
   /** 表单数据（双向绑定），key 为字段名，value 为用户输入的值 */
   modelValue?: Record<string, unknown>
-  /** n-form 的 props，合并时会覆盖全局配置中的同名字段 */
+  /** form 组件的 props，合并时会覆盖全局配置中的同名字段 */
   formProps?: FormConfig
-  /** n-grid 的 props（含 cols / xGap / yGap 等），合并时会覆盖全局配置中的同名字段 */
+  /** grid 组件的 props（含 cols / xGap / yGap 等），合并时会覆盖全局配置中的同名字段 */
   gridProps?: GridConfig
-  /** n-form-item 的 props，合并时会覆盖全局配置中的同名字段 */
+  /** form-item 组件的 props，合并时会覆盖全局配置中的同名字段 */
   formItemProps?: FormItemConfig
 }
 
@@ -80,7 +80,7 @@ const emit = defineEmits<{
 // 依赖注入与状态
 // ========================================================================
 
-/** 表单组件 ref，用于调用 n-form 的 validate 方法 */
+/** 表单组件 ref，用于调用 form 组件的 validate 方法 */
 const formRef = ref<ComponentPublicInstance | null>(null)
 /** 从 ComponentMap 获取组件，提取常用组件为变量避免模板中重复调用 */
 const { getComponent } = useComponentMap()
@@ -106,17 +106,17 @@ watch(
 // 配置合并：全局默认 → 组件 props 覆盖（computed 响应式）
 // ========================================================================
 
-/** 合并 n-form 配置：全局默认 → 组件传入 props，后者覆盖前者 */
+/** 合并 form 配置：全局默认 → 组件传入 props，后者覆盖前者 */
 const mergedFormProps = useMergedProps<FormConfig>('form', () => props.formProps)
 
-/** 合并 n-grid 配置：全局默认 → 组件传入 props，后者覆盖前者 */
+/** 合并 grid 配置：全局默认 → 组件传入 props，后者覆盖前者 */
 const mergedGridProps = useMergedProps<GridConfig>('grid', () => props.gridProps, {
   xGap: 12,
   yGap: 8,
   cols: 4,
 })
 
-/** 合并 n-form-item 基础 props：全局默认 → 组件传入 props，后者覆盖前者
+/** 合并 form-item 基础 props：全局默认 → 组件传入 props，后者覆盖前者
  * label / path / rule 在模板中由 field 级别单独传入，不在此合并
  */
 const mergedFormItemBaseProps = useMergedProps<FormItemConfig>(

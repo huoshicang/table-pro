@@ -43,12 +43,12 @@ app.use(TableProPlugin, {
 
     // 全局组件默认配置
     components: {
-      form: { /* n-form 默认 props */ },
-      grid: { /* n-grid 默认 props */ },
-      formItem: { /* n-form-item 默认 props */ },
-      table: { /* n-data-table 默认 props */ },
-      modal: { /* n-modal 默认 props */ },
-      pagination: { /* n-pagination 默认 props */ },
+      form: { /* form 默认 props */ },
+      grid: { /* grid 默认 props */ },
+      formItem: { /* form-item 默认 props */ },
+      table: { /* data-table 默认 props */ },
+      modal: { /* modal 默认 props */ },
+      pagination: { /* pagination 默认 props */ },
     },
 
     // Modal 适配器（跨 UI 库兼容）

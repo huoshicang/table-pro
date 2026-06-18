@@ -37,7 +37,7 @@ export interface ActionItem {
 
 /** FormRenderer 组件实例类型，用于父组件通过 ref 访问内部状态 */
 export interface FormRendererInstance {
-  /** n-form 组件 ref，可调用 validate 等方法 */
+  /** form 组件 ref，可调用 validate 等方法 */
   formRef: Record<string, unknown> | null
   /** 表单响应式数据 */
   formValue: Record<string, unknown>

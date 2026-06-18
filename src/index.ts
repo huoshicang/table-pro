@@ -112,7 +112,7 @@ export type ComponentMap = {
   empty?: Component
 }
 
-/** 表单组件（n-form）默认 props */
+/** 表单组件默认 props */
 export interface FormConfig {
   /** 是否为行内表单 */
   inline?: boolean
@@ -132,7 +132,7 @@ export interface FormConfig {
   size?: 'small' | 'medium' | 'large'
 }
 
-/** 网格组件（n-grid）默认 props */
+/** 网格组件默认 props */
 export interface GridConfig {
   /** 是否禁用布局偏移动画 */
   layoutShiftDisabled?: boolean
@@ -154,7 +154,7 @@ export interface GridConfig {
   yGap?: number | string
 }
 
-/** 间距容器组件（n-space）默认 props */
+/** 间距容器组件默认 props */
 export interface SpaceConfig {
   /** 对齐方式 */
   align?: 'stretch' | 'baseline' | 'start' | 'end' | 'center' | 'flex-end' | 'flex-start'
@@ -170,7 +170,7 @@ export interface SpaceConfig {
   size?: 'small' | 'medium' | 'large' | number
 }
 
-/** 表单表单项组件（n-form-item）默认 props */
+/** 表单表单项组件默认 props */
 export interface FormItemConfig {
   /** 表单项 label */
   label?: string
@@ -204,7 +204,7 @@ export interface FormItemConfig {
   showLabel?: boolean
 }
 
-/** 分页组件（n-pagination）默认 props */
+/** 分页组件默认 props */
 export interface PaginationConfig {
   /** 当前页码 */
   page?: number
@@ -224,11 +224,11 @@ export interface PaginationConfig {
   pageSlot?: number
   /** 分页尺寸 */
   size?: 'small' | 'medium' | 'large'
-  /** 允许透传其他 n-pagination 原生 props */
+  /** 允许透传其他分页组件原生 props */
   [key: string]: unknown
 }
 
-/** 表格组件（n-data-table）默认 props */
+/** 表格组件默认 props */
 export interface TableConfig {
   /** 表格尺寸：'tiny' | 'small' | 'medium' | 'large' */
   size?: 'tiny' | 'small' | 'medium' | 'large'
@@ -250,7 +250,7 @@ export interface TableConfig {
   maxHeight?: number
 }
 
-/** 弹窗组件（n-modal）默认 props */
+/** 弹窗组件默认 props */
 export interface ModalConfig {
   /** 弹窗预设样式：'dialog' | 'card' */
   preset?: 'dialog' | 'card'
@@ -262,7 +262,7 @@ export interface ModalConfig {
   maskClosable?: boolean
   /** 弹窗标题 */
   title?: string
-  /** 允许透传其他 n-modal 原生 props */
+  /** 允许透传其他弹窗组件原生 props */
   [key: string]: unknown
 }
 

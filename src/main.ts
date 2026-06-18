@@ -101,8 +101,8 @@ app.use(TableProPlugin, {
       visibleProp: 'show',
       visibleEvent: 'update:show',
       slots: {
-        header: 'header', // naive-ui n-modal 头部插槽名
-        actions: 'action', // naive-ui n-modal preset="dialog" 底部操作插槽名
+        header: 'header', // 弹窗头部插槽名
+        actions: 'action', // 弹窗底部操作按钮插槽名
       },
     },
   },

@@ -69,7 +69,7 @@ interface Props {
   columns?: TableColumn<T>[]
   /** 是否显示新增按钮（默认 false） */
   showAdd?: boolean
-  /** n-table 的 props，合并时会覆盖全局配置中的同名字段 */
+  /** 表格组件的 props，合并时会覆盖全局配置中的同名字段 */
   tableProps?: TableConfig
   /** 行数据唯一标识字段名（默认 'key'），用于多选功能 */
   rowKey?: string
@@ -177,7 +177,7 @@ defineSlots<{
 }>()
 
 defineExpose({
-  /** 表格组件 ref，供外部调用 n-table 的方法（如 sort / filter） */
+  /** 表格组件 ref，供外部调用表格组件的方法（如 sort / filter） */
   tableRef,
 })
 </script>

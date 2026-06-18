@@ -95,9 +95,9 @@ const form = ref({})
 | `schema` | `SearchField[]` | — | 搜索字段配置（必传） |
 | `modelValue` | `Record<string, unknown>` | `{}` | 表单数据（v-model） |
 | `defaultVisibleCount` | `number` | `3` | 折叠时默认显示字段数 |
-| `formProps` | `FormConfig` | `{}` | n-form 的 props |
-| `gridProps` | `GridConfig` | `{}` | n-grid 的 props |
-| `formItemProps` | `FormItemConfig` | `{}` | n-form-item 的 props |
+| `formProps` | `FormConfig` | `{}` | form 的 props |
+| `gridProps` | `GridConfig` | `{}` | grid 的 props |
+| `formItemProps` | `FormItemConfig` | `{}` | form-item 的 props |
 
 ## SearchField 配置
 

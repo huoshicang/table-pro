@@ -70,9 +70,9 @@ const formData = ref({})
 |------|------|--------|------|
 | `schema` | `SearchField[]` | — | 字段配置（必传） |
 | `modelValue` | `Record<string, unknown>` | `{}` | 表单数据（v-model） |
-| `formProps` | `FormConfig` | `{}` | n-form 的 props |
-| `gridProps` | `GridConfig` | `{}` | n-grid 的 props |
-| `formItemProps` | `FormItemConfig` | `{}` | n-form-item 的 props |
+| `formProps` | `FormConfig` | `{}` | form 的 props |
+| `gridProps` | `GridConfig` | `{}` | grid 的 props |
+| `formItemProps` | `FormItemConfig` | `{}` | form-item 的 props |
 
 ## Slots
 
@@ -84,5 +84,5 @@ const formData = ref({})
 
 | 属性 | 类型 | 说明 |
 |------|------|------|
-| `formRef` | `ComponentPublicInstance \| null` | n-form ref，可调用 `validate()` |
+| `formRef` | `ComponentPublicInstance \| null` | form ref，可调用 `validate()` |
 | `formValue` | `Record<string, unknown>` | 表单响应式数据 |

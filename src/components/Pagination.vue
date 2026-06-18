@@ -30,7 +30,7 @@ interface Props {
   pageCount?: number
   /** 总条目数 */
   itemCount?: number
-  /** n-pagination 的 props，合并时会覆盖全局配置中的同名字段 */
+  /** 分页组件的 props，合并时会覆盖全局配置中的同名字段 */
   paginationProps?: PaginationConfig
 }
 
@@ -65,7 +65,7 @@ const Pagination = getComponent('pagination', ['text'])
 const { page, pageSize, onPageChange } = usePaginationState(props, emit)
 
 /**
- * 处理 n-pagination 的 update:page 事件
+ * 处理分页组件的 update:page 事件
  * @description 更新 page 并触发 change 事件，传递当前 pageSize
  */
 function handlePageUpdate(newPage: number) {
@@ -73,7 +73,7 @@ function handlePageUpdate(newPage: number) {
 }
 
 /**
- * 处理 n-pagination 的 update:page-size 事件
+ * 处理分页组件的 update:page-size 事件
  * @description 更新 pageSize 并触发 change 事件，自动重置 page 为 1
  */
 function handlePageSizeUpdate(newPageSize: number) {
@@ -86,7 +86,7 @@ function handlePageSizeUpdate(newPageSize: number) {
 
 /**
  * 合并分页配置：全局默认 → 组件传入 props，后者覆盖前者
- * 排除 page/pageSize，避免与 n-pagination 的显式 prop 冲突
+ * 排除 page/pageSize，避免与分页组件的显式 prop 冲突
  */
 const basePaginationProps = useMergedProps<PaginationConfig>(
   'pagination',

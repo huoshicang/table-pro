@@ -24,6 +24,7 @@ export default defineConfig({
           items: [
             { text: '快速开始', link: '/guide/getting-started' },
             { text: '插件注册', link: '/guide/plugin-setup' },
+            { text: '使用示例', link: '/guide/examples' },
           ],
         },
       ],

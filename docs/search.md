@@ -40,10 +40,10 @@ function handleReset() {
 ## 组件结构
 
 ```
-┌─ n-form ───────────────────────┐
-│  ┌─ n-grid (cols=4, xGap=12) ─┐│
-│  │  n-gridItem × N (字段)      ││
-│  │  n-gridItem (按钮区域)      ││
+┌─ form ───────────────────────┐
+│  ┌─ grid (cols=4, xGap=12) ─┐│
+│  │  gridItem × N (字段)      ││
+│  │  gridItem (按钮区域)      ││
 │  │    └─ n-space               ││
 │  │       ├─ #search 按钮       ││
 │  │       ├─ #reset 按钮        ││
@@ -58,9 +58,9 @@ function handleReset() {
 |---|---|---|---|
 | `schema` | `SearchField[]` | **必填** | 搜索字段配置数组 |
 | `modelValue` | `Record<string, unknown>` | `{}` | 表单数据（v-model 双向绑定） |
-| `formProps` | `FormConfig` | `{}` | 覆盖 `n-form` 的 props |
-| `gridProps` | `GridConfig` | `{}` | 覆盖 `n-grid` 的 props（含 `cols`/`xGap`/`yGap`） |
-| `formItemProps` | `FormItemConfig` | `{}` | 覆盖 `n-form-item` 的 props |
+| `formProps` | `FormConfig` | `{}` | 覆盖 `form` 的 props |
+| `gridProps` | `GridConfig` | `{}` | 覆盖 `grid` 的 props（含 `cols`/`xGap`/`yGap`） |
+| `formItemProps` | `FormItemConfig` | `{}` | 覆盖 `form-item` 的 props |
 
 ### schema 字段配置 (SearchField)
 
@@ -69,7 +69,7 @@ function handleReset() {
 | `name` | `string` | **必填** | 字段名，对应表单 model 的 key |
 | `label` | `string` | **必填** | 表单项 label |
 | `type` | `keyof ComponentMap` | **必填** | 组件类型，如 `'input'` / `'select'` / `'datePicker'` |
-| `span` | `number` | `1` | 在 n-grid 中占的列数 |
+| `span` | `number` | `1` | 在 grid 中占的列数 |
 | `rules` | `unknown[]` | — | 表单校验规则 |
 | `componentProps` | `Record<string, unknown>` | — | 传递给底层输入组件的额外 props |
 
@@ -174,7 +174,7 @@ app.use(TableProPlugin, {
 
 ## 搜索与重置逻辑
 
-- **搜索**：调用 `n-form.validate()` 校验，校验通过则触发 `search` 事件并传入当前表单值；校验失败不做任何操作。
+- **搜索**：调用 `form.validate()` 校验，校验通过则触发 `search` 事件并传入当前表单值；校验失败不做任何操作。
 - **重置**：将 `formValue` 中所有字段置为空字符串（`''`），触发 `update:modelValue` 和 `reset` 事件。
 
 ## 源码

@@ -54,11 +54,11 @@ interface Props {
   schema: SearchField[]
   /** 表单数据（双向绑定），key 为字段名，value 为用户输入的值 */
   modelValue?: Record<string, unknown>
-  /** n-form 的 props，合并时会覆盖全局配置中的同名字段 */
+  /** form 组件的 props，合并时会覆盖全局配置中的同名字段 */
   formProps?: FormConfig
-  /** n-grid 的 props（含 cols / xGap / yGap 等），合并时会覆盖全局配置中的同名字段 */
+  /** grid 组件的 props（含 cols / xGap / yGap 等），合并时会覆盖全局配置中的同名字段 */
   gridProps?: GridConfig
-  /** n-form-item 的 props，合并时会覆盖全局配置中的同名字段 */
+  /** form-item 组件的 props，合并时会覆盖全局配置中的同名字段 */
   formItemProps?: FormItemConfig
   /** 未展开时默认显示的字段数（默认 3） */
   defaultVisibleCount?: number
