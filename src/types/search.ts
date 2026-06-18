@@ -8,8 +8,8 @@ export interface SearchField {
   name: string
   /** 表单项 label */
   label: string
-  /** 组件类型，对应 ComponentMap 的 key，如 'input' | 'select' | 'datePicker' */
-  type: keyof ComponentMap
+  /** 组件类型，对应 ComponentMap 的 key（默认 'input'） */
+  type?: keyof ComponentMap
   /** 传递给组件的额外 props */
   componentProps?: Record<string, unknown>
   /** 在 n-grid 中占的列数（默认 1） */

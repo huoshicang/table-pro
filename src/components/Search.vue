@@ -9,24 +9,24 @@
     :formItemProps="props.formItemProps"
   >
     <template #actions>
-      <component :is="getComponent('space')">
+      <component :is="Space">
         <slot name="search" :onClick="handleSearch">
-          <component :is="getComponent('button')" attr-type="button" @click="handleSearch">搜索</component>
+          <component :is="button" attr-type="button" @click="handleSearch">搜索</component>
         </slot>
         <slot name="reset" :onClick="handleReset">
-          <component :is="getComponent('button')" attr-type="button" @click="handleReset">重置</component>
+          <component :is="button" attr-type="button" @click="handleReset">重置</component>
         </slot>
         <slot
           v-if="needsToggle"
           name="toggle"
-          :onClick="() => { expanded = !expanded }"
+          :onClick="
+            () => {
+              expanded = !expanded
+            }
+          "
           :expanded="expanded"
         >
-          <component
-            :is="getComponent('button')"
-            attr-type="button"
-            @click="expanded = !expanded"
-          >
+          <component :is="button" attr-type="button" @click="expanded = !expanded">
             {{ expanded ? '收起' : '展开' }}
           </component>
         </slot>
@@ -36,11 +36,12 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 
-import { TABLE_COMPONENTS_KEY } from '@/index'
+import { useComponentMap } from '@/composables/useComponentMap'
 import type { FormConfig, GridConfig, FormItemConfig } from '@/index'
 import type { SearchField } from '@/types/search'
+import type { FormRendererInstance } from '@/types/common'
 import FormRenderer from '@/components/FormRenderer.vue'
 
 // ========================================================================
@@ -83,15 +84,12 @@ const emit = defineEmits<{
   'update:modelValue': [value: Record<string, unknown>]
 }>()
 
-// ========================================================================
-// 依赖注入与状态
-// ========================================================================
-
-const injection = inject(TABLE_COMPONENTS_KEY, { components: {} })
-const componentMap = injection.components
+const { getComponent } = useComponentMap()
+const button = getComponent('button')
+const Space = getComponent('space')
 
 /** FormRenderer 组件 ref，用于访问其内部的 formRef 和 formValue */
-const formRendererRef = ref<InstanceType<typeof FormRenderer> | null>(null)
+const formRendererRef = ref<FormRendererInstance | null>(null)
 
 /** 表单数据，通过 v-model 与 FormRenderer 双向同步 */
 const formData = ref<Record<string, unknown>>({ ...(props.modelValue ?? {}) })
@@ -124,25 +122,14 @@ const visibleFields = computed<SearchField[]>(() => {
 })
 
 // ========================================================================
-// 工具函数
-// ========================================================================
-
-/** 根据组件类型名从注入的 ComponentMap 中查找组件，未找到时 fallback 到 input */
-function getComponent(type: string) {
-  return (
-    (componentMap as Record<string, (typeof componentMap)[keyof typeof componentMap]>)[type] ??
-    componentMap.input
-  )
-}
-
-// ========================================================================
 // 搜索 / 重置逻辑
 // ========================================================================
 
 /** 校验表单，通过后触发 search 事件 */
 function handleSearch() {
-  // @ts-expect-error dynamic component ref, validate API is available at runtime
-  formRendererRef.value?.formRef?.validate?.((errors: unknown) => {
+  const formRef = formRendererRef.value?.formRef as Record<string, unknown> | null
+  const validate = formRef?.validate as ((cb: (errors: unknown) => void) => void) | undefined
+  validate?.((errors: unknown) => {
     if (!errors) {
       emit('search', { ...formData.value })
     }

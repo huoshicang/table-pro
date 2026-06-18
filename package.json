@@ -1,18 +1,39 @@
 {
   "name": "table-pro",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "description": "Vue 3 后台管理表格组件库 —— schema 驱动的可配置数据表格",
   "type": "module",
+  "main": "./dist/table-pro.cjs",
+  "module": "./dist/table-pro.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/table-pro.mjs",
+      "require": "./dist/table-pro.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
+    "build:lib": "vite build --mode lib",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "format": "prettier --write --experimental-cli src/"
+    "preview": "vite preview",
+    "format": "prettier --write --experimental-cli src/",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "peerDependencies": {
+    "naive-ui": "^2.44.0",
+    "vue": "^3.5.0"
   },
   "dependencies": {
-    "vue": "^3.5.32"
+    "vue": "^3.5.0"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",
@@ -25,9 +46,11 @@
     "typescript": "~6.0.0",
     "vite": "^8.0.8",
     "vite-plugin-vue-devtools": "^8.1.1",
+    "vitepress": "^1.6.4",
     "vue-tsc": "^3.2.6"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
-  }
+  },
+  "license": "MIT"
 }

@@ -1,9 +1,12 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import TableProPlugin from '@/index.ts'
+import TableProPlugin from '@/index'
 import '@/styles/global.css'
 
 import {
+  // ========================================================================
+  // 表单输入组件：通过 getComponent(field.type) 动态渲染
+  // ========================================================================
   NInput,
   NSelect,
   NCascader,
@@ -11,122 +14,98 @@ import {
   NTimePicker,
   NSwitch,
   NRadioGroup,
-  NRadioButton,
-  NCheckboxGroup,
   NRadio,
+  NCheckboxGroup,
   NCheckbox,
-  NButton,
-  NForm,
-  NFormItem,
-  NGrid,
-  NGridItem,
-  NSpace,
-  NDataTable,
-  NDialog,
-  NDrawer,
-  NModal,
-  NTree,
-  NUpload,
-  NPagination,
-  NTag,
-  NTooltip,
-  NDropdown,
-  NPopover,
-  NAutoComplete,
   NInputNumber,
   NSlider,
   NRate,
   NColorPicker,
-  NDivider,
-  NBreadcrumb,
-  NMenu,
-  NTabs,
-  NSteps,
-  NCard,
-  NCollapse,
-  NTimeline,
-  NList,
-  NAvatar,
-  NBadge,
-  NAnchor,
-  NQrCode,
-  NStatistic,
+  // ========================================================================
+  // 表单结构组件：FormRenderer 使用
+  // ========================================================================
+  NForm,
+  NFormItem,
+  NGrid,
+  NGridItem,
+  // ========================================================================
+  // 通用组件：Search / Table / Modal / TableAction 使用
+  // ========================================================================
+  NButton,
+  NSpace,
+  NDataTable,
+  NModal,
+  NPagination,
+  NDropdown,
+  // ========================================================================
+  // 回退组件：Table.vue 的 getComponent 回退链 ['text', 'input']
+  // ========================================================================
   NText,
-  NEmpty,
 } from 'naive-ui'
-
-import Naive from 'naive-ui'
 
 const app = createApp(App)
 
 app.use(TableProPlugin, {
   components: {
+    // 表单输入组件（field.type 可选值）
     input: NInput,
+    textarea: NInput, // Naive UI 的 textarea 是 NInput 的 type="textarea" 模式
     select: NSelect,
     cascader: NCascader,
     datePicker: NDatePicker,
     timePicker: NTimePicker,
     switch: NSwitch,
     radioGroup: NRadioGroup,
-    radioButton: NRadioButton,
-    checkboxGroup: NCheckboxGroup,
     radio: NRadio,
+    checkboxGroup: NCheckboxGroup,
     checkbox: NCheckbox,
-    button: NButton,
-    form: NForm,
-    formItem: NFormItem,
-    grid: NGrid,
-    gridItem: NGridItem,
-    space: NSpace,
-    table: NDataTable,
-    dialog: NDialog,
-    modal: NModal,
-    drawer: NDrawer,
-    tree: NTree,
-    upload: NUpload,
-    pagination: NPagination,
-    tag: NTag,
-    tooltip: NTooltip,
-    dropdown: NDropdown,
-    popover: NPopover,
-    autoComplete: NAutoComplete,
     inputNumber: NInputNumber,
     slider: NSlider,
     rate: NRate,
     colorPicker: NColorPicker,
-    divider: NDivider,
-    breadcrumb: NBreadcrumb,
-    menu: NMenu,
-    tabs: NTabs,
-    steps: NSteps,
-    card: NCard,
-    collapse: NCollapse,
-    timeline: NTimeline,
-    list: NList,
-    avatar: NAvatar,
-    badge: NBadge,
-    anchor: NAnchor,
-    qrcode: NQrCode,
-    statistic: NStatistic,
+    // 表单结构组件
+    form: NForm,
+    formItem: NFormItem,
+    grid: NGrid,
+    gridItem: NGridItem,
+    // 通用组件
+    button: NButton,
+    space: NSpace,
+    table: NDataTable,
+    modal: NModal,
+    pagination: NPagination,
+    dropdown: NDropdown,
+    // 回退组件
     text: NText,
-    empty: NEmpty,
   },
   config: {
     debug: true,
     // 全局组件默认配置：各子组件可在此基础上传入 props 覆盖
     components: {
-      table:{},
-
-      // n-grid 默认间距
-      // n-form-item 默认 label 宽度和位置
       formItem: {
         labelWidth: 80,
         labelPlacement: 'left',
       },
+      pagination: {
+        size: 'medium',
+        showQuickJumper: true,
+        showSizePicker: true,
+      },
+      modal: {
+        preset: 'dialog',
+        style: { width: '80%' },
+      },
+    },
+    // Modal 适配器：跨 UI 库兼容
+    modalAdapter: {
+      visibleProp: 'show',
+      visibleEvent: 'update:show',
+      slots: {
+        header: 'header', // naive-ui n-modal 头部插槽名
+        actions: 'action', // naive-ui n-modal preset="dialog" 底部操作插槽名
+      },
     },
   },
 })
-
-app.use(Naive)
 
 app.mount('#app')

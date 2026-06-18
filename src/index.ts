@@ -204,6 +204,30 @@ export interface FormItemConfig {
   showLabel?: boolean
 }
 
+/** 分页组件（n-pagination）默认 props */
+export interface PaginationConfig {
+  /** 当前页码 */
+  page?: number
+  /** 每页条数 */
+  pageSize?: number
+  /** 总页数 */
+  pageCount?: number
+  /** 总条目数 */
+  itemCount?: number
+  /** 可选每页条数 */
+  pageSizes?: number[]
+  /** 是否显示每页条数选择器 */
+  showSizePicker?: boolean
+  /** 是否显示快速跳转 */
+  showQuickJumper?: boolean
+  /** 页码按钮的显示数量 */
+  pageSlot?: number
+  /** 分页尺寸 */
+  size?: 'small' | 'medium' | 'large'
+  /** 允许透传其他 n-pagination 原生 props */
+  [key: string]: unknown
+}
+
 /** 表格组件（n-data-table）默认 props */
 export interface TableConfig {
   /** 表格尺寸：'tiny' | 'small' | 'medium' | 'large' */
@@ -226,6 +250,22 @@ export interface TableConfig {
   maxHeight?: number
 }
 
+/** 弹窗组件（n-modal）默认 props */
+export interface ModalConfig {
+  /** 弹窗预设样式：'dialog' | 'card' */
+  preset?: 'dialog' | 'card'
+  /** 弹窗内联样式 */
+  style?: string | Record<string, unknown>
+  /** 是否可关闭 */
+  closable?: boolean
+  /** 点击遮罩是否关闭 */
+  maskClosable?: boolean
+  /** 弹窗标题 */
+  title?: string
+  /** 允许透传其他 n-modal 原生 props */
+  [key: string]: unknown
+}
+
 /** 组件默认配置映射 */
 export interface ComponentDefaultsConfig {
   /** 表单组件默认配置 */
@@ -238,15 +278,29 @@ export interface ComponentDefaultsConfig {
   formItem?: FormItemConfig
   /** 表格组件默认配置 */
   table?: TableConfig
+  /** 弹窗组件默认配置 */
+  modal?: ModalConfig
+  /** 分页组件默认配置 */
+  pagination?: PaginationConfig
 }
 
 /** 插件配置默认值 */
 export const defaultTableProConfig: TableProConfig = {
   debug: false,
   text: '没有传入值，使用默认值',
+  components: {
+    modal: {
+      preset: 'dialog',
+      style: { width: '80%' },
+    },
+  },
   modalAdapter: {
     visibleProp: 'show',
     visibleEvent: 'update:show',
+    slots: {
+      header: 'header',
+      actions: 'action',
+    },
   },
 }
 
@@ -259,6 +313,13 @@ export interface ModalAdapter {
   visibleProp?: string
   /** 可见性更新事件名，如 'update:show' / 'update:visible' */
   visibleEvent?: string
+  /** UI 库的插槽名映射：逻辑插槽名 → UI 库实际插槽名 */
+  slots?: {
+    /** 头部插槽名（默认 'header'） */
+    header?: string
+    /** 底部操作按钮插槽名（默认 'action'，对应 naive-ui preset="dialog" 的 footer 插槽） */
+    actions?: string
+  }
 }
 
 /** 插件配置 */
@@ -287,7 +348,7 @@ export interface TableProConfig {
 }
 
 /** 注入的数据类型 */
-interface TableProInjection {
+export interface TableProInjection {
   components: ComponentMap
   config?: TableProConfig
 }
@@ -315,5 +376,38 @@ const TableProPlugin = {
     app.provide(TABLE_COMPONENTS_KEY, injection)
   },
 }
+
+// ========================================================================
+// 组件导出
+// ========================================================================
+
+export { default as TablePro } from '@/components/TablePro.vue'
+export { default as Table } from '@/components/Table.vue'
+export { default as Search } from '@/components/Search.vue'
+export { default as FormRenderer } from '@/components/FormRenderer.vue'
+export { default as Pagination } from '@/components/Pagination.vue'
+export { default as Modal } from '@/components/Modal.vue'
+export { default as TableAction } from '@/components/TableAction.vue'
+
+// ========================================================================
+// Composables 导出
+// ========================================================================
+
+export { useComponentMap } from '@/composables/useComponentMap'
+export { useMergedProps } from '@/composables/useMergedProps'
+export { usePaginationState } from '@/composables/usePaginationState'
+
+// ========================================================================
+// 工具函数导出
+// ========================================================================
+
+export { columnsToSchema } from '@/types/table'
+export { clearAndReassign } from '@/utils/reactive'
+
+// ========================================================================
+// 共享类型导出
+// ========================================================================
+
+export type { ConfirmHandlers, ActionItem, FormRendererInstance } from '@/types/common'
 
 export default TableProPlugin

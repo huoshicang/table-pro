@@ -75,6 +75,51 @@ A global stylesheet is imported in `src/main.ts`:
 - **File**: `src/styles/global.css`
 - **Rule**: `#app { padding: 20px; margin: 20px; }`
 
+## Coding Patterns
+
+### getComponent 重复调用 → 提取为变量
+
+模板中多次使用的 `getComponent('xxx')` 必须提取为变量，避免每次渲染都调用函数：
+
+```ts
+// ❌ 模板中重复调用
+<component :is="getComponent('button')" @click="fn1">取消</component>
+<component :is="getComponent('button')" type="primary" @click="fn2">确认</component>
+
+// ✅ 提取为变量
+const Button = getComponent('button')
+const Space = getComponent('space')
+// 模板中用 <component :is="Button" ...>
+```
+
+已提取变量的组件：Table.vue（`Button`, `Space`）、Search.vue（`button`）、FormRenderer.vue（`FormItem`, `GridItem`）、Modal.vue（`Button`, `Space`）。
+
+### 配置合并：全局默认 → 组件 props 覆盖
+
+```ts
+const globalComponentDefaults = injection.config?.components
+const mergedXxxProps = computed(() => ({
+  ...(globalComponentDefaults?.xxx ?? {}),
+  ...props.xxxProps,
+}))
+```
+
+### 插槽透传：TablePro → 子组件
+
+TablePro 作为编排层，通过 `$slots` 动态透传给 Modal（Table 因需要 slot props 仍手动转发 `#action-col`）：
+
+```vue
+<Modal ...>
+  <template v-for="(_, name) in $slots" :key="name" #[name]="scope">
+    <slot :name="name" v-bind="scope || {}" />
+  </template>
+</Modal>
+```
+
+### Modal 插槽动态映射
+
+Modal 暴露逻辑插槽名（`#header` / `#actions`），内部通过 `modalAdapter.slots` 映射到 UI 库的实际插槽名，实现跨 UI 库兼容。
+
 ## Known Issues & Gotchas
 
 ### Search.vue 开发过程中的踩坑记录

@@ -1,18 +1,13 @@
 <template>
   <!-- 根节点：n-form 包裹全部字段，通过动态组件渲染 -->
-  <component :is="getComponent('form')" ref="formRef" :model="formValue" v-bind="mergedFormProps">
+  <component :is="Form" ref="formRef" :model="formValue" v-bind="mergedFormProps">
     <!-- n-grid 提供栅格布局 -->
-    <component :is="getComponent('grid')" v-bind="mergedGridProps">
+    <component :is="Grid" v-bind="mergedGridProps">
       <!-- 每个字段的 n-grid-item -->
-      <component
-        :is="getComponent('gridItem')"
-        v-for="field in schema"
-        :key="field.name"
-        :span="field.span ?? 1"
-      >
+      <component :is="GridItem" v-for="field in schema" :key="field.name" :span="field.span ?? 1">
         <!-- n-form-item：label / path / rule 来自 field 自身，基础 props 走全局合并 -->
         <component
-          :is="getComponent('formItem')"
+          :is="FormItem"
           :label="field.label"
           :path="field.name"
           :rule="field.rules"
@@ -20,7 +15,7 @@
         >
           <!-- 字段输入组件，类型由 field.type 决定，props 由 field.componentProps 传入 -->
           <component
-            :is="getComponent(field.type)"
+            :is="getComponent(field.type ?? 'input')"
             :value="formValue[field.name]"
             @update:value="(val: unknown) => updateField(field.name, val)"
             v-bind="{ style: { width: '100%' }, ...field.componentProps }"
@@ -29,8 +24,8 @@
         </component>
       </component>
       <!-- 操作按钮区域：由父组件通过 actions 插槽注入 -->
-      <component :is="getComponent('gridItem')" v-if="$slots.actions">
-        <component :is="getComponent('formItem')" :show-label="false">
+      <component :is="GridItem" v-if="$slots.actions">
+        <component :is="FormItem" :show-label="false">
           <slot name="actions" />
         </component>
       </component>
@@ -39,10 +34,12 @@
 </template>
 
 <script setup lang="ts">
-import { inject, reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 import type { ComponentPublicInstance } from 'vue'
-import { TABLE_COMPONENTS_KEY } from '@/index'
+import { useComponentMap } from '@/composables/useComponentMap'
+import { useMergedProps } from '@/composables/useMergedProps'
+import { clearAndReassign } from '@/utils/reactive'
 import type { FormConfig, GridConfig, FormItemConfig } from '@/index'
 import type { SearchField } from '@/types/search'
 
@@ -85,56 +82,48 @@ const emit = defineEmits<{
 
 /** 表单组件 ref，用于调用 n-form 的 validate 方法 */
 const formRef = ref<ComponentPublicInstance | null>(null)
-const injection = inject(TABLE_COMPONENTS_KEY, { components: {} })
-const componentMap = injection.components
-/** 提取全局组件默认配置，避免每次访问深层嵌套 */
-const globalComponentDefaults = injection.config?.components
+/** 从 ComponentMap 获取组件，提取常用组件为变量避免模板中重复调用 */
+const { getComponent } = useComponentMap()
+const Form = getComponent('form')
+const Grid = getComponent('grid')
+const FormItem = getComponent('formItem')
+const GridItem = getComponent('gridItem')
 
 /** 表单响应式数据 */
 const formValue = reactive<Record<string, unknown>>({ ...(props.modelValue ?? {}) })
 
+/** 父组件外部修改 modelValue 时同步到内部状态 */
+watch(
+  () => props.modelValue,
+  (val) => {
+    if (!val) return
+    clearAndReassign(formValue, val)
+  },
+  { deep: true },
+)
+
 // ========================================================================
-// 配置合并：全局默认 → 组件 props 覆盖
+// 配置合并：全局默认 → 组件 props 覆盖（computed 响应式）
 // ========================================================================
 
 /** 合并 n-form 配置：全局默认 → 组件传入 props，后者覆盖前者 */
-const mergedFormProps: FormConfig = {
-  ...(globalComponentDefaults?.form ?? {}),
-  ...props.formProps,
-}
+const mergedFormProps = useMergedProps<FormConfig>('form', () => props.formProps)
 
 /** 合并 n-grid 配置：全局默认 → 组件传入 props，后者覆盖前者 */
-const mergedGridProps: GridConfig = {
-  ...(globalComponentDefaults?.grid ?? {
-    xGap: 12,
-    yGap: 8,
-    cols: 4,
-  }),
-  ...props.gridProps,
-}
+const mergedGridProps = useMergedProps<GridConfig>('grid', () => props.gridProps, {
+  xGap: 12,
+  yGap: 8,
+  cols: 4,
+})
 
 /** 合并 n-form-item 基础 props：全局默认 → 组件传入 props，后者覆盖前者
  * label / path / rule 在模板中由 field 级别单独传入，不在此合并
  */
-const mergedFormItemBaseProps: FormItemConfig = {
-  ...(globalComponentDefaults?.formItem ?? {
-    labelWidth: 80,
-    labelPlacement: 'left',
-  }),
-  ...props.formItemProps,
-}
-
-// ========================================================================
-// 工具函数
-// ========================================================================
-
-/** 根据组件类型名从注入的 ComponentMap 中查找组件，未找到时 fallback 到 input */
-function getComponent(type: string) {
-  return (
-    (componentMap as Record<string, (typeof componentMap)[keyof typeof componentMap]>)[type] ??
-    componentMap.input
-  )
-}
+const mergedFormItemBaseProps = useMergedProps<FormItemConfig>(
+  'formItem',
+  () => props.formItemProps,
+  { labelWidth: 80, labelPlacement: 'left' },
+)
 
 /** 更新表单字段值并同步到父组件 */
 function updateField(name: string, value: unknown) {
