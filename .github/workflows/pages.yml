@@ -33,7 +33,7 @@ jobs:
         run: npm install
 
       - name: Build demo app
-        run: npx vite build
+        run: npx vite build --mode demo
 
       - name: Build docs
         run: npx vitepress build docs
