@@ -2,9 +2,9 @@
 
 ## 在线演示
 
-下面是完整的组件演示，可交互操作：
+下面是完整的组件演示，包含 Naive UI 和 Ant Design Vue 两套 UI 库的对比示例：
 
-<DemoFrame title="TablePro 在线演示" height="700" />
+<DemoFrame title="TablePro 在线演示" height="900" />
 
 [↗ 全屏打开演示](/table-pro/demo/index.html){target="_blank"}
 

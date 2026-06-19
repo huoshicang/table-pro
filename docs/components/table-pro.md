@@ -4,9 +4,9 @@
 
 ## 完整演示
 
-下面是完整的 App.vue 演示，包含所有组件的实际运行效果：
+下面是完整的演示，包含 Naive UI 和 Ant Design Vue 两套 UI 库的对比效果：
 
-<DemoFrame title="TablePro 完整演示" height="700" />
+<DemoFrame title="TablePro 完整演示" height="900" />
 
 ## 基础用法
 
