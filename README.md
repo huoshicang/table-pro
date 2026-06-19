@@ -97,6 +97,7 @@ src/
 | `pageSize` | `number` | `10` | 每页条数（v-model） |
 | `itemCount` | `number` | `0` | 总条目数 |
 | `paginationProps` | `PaginationConfig` | `{}` | n-pagination 的 props |
+| `defaultSpan` | `number` | `1` | 表单字段默认栅格占列数（antd 24 列栅格建议 `8`） |
 
 **Events：**
 
@@ -447,6 +448,22 @@ interface ModalAdapter {
     actions?: string         // 底部操作插槽名
   }
 }
+
+// 通用组件适配器（prop/event/slot 名称映射）
+interface ComponentAdapter {
+  props?: Record<string, string>    // prop 名称映射，如 { page: 'current' }
+  events?: Record<string, string>   // 事件名称映射，如 { 'update:page': 'update:current' }
+  slots?: Record<string, string>    // 插槽名称映射
+}
+
+// 适配器配置映射
+interface AdaptersConfig {
+  pagination?: ComponentAdapter
+  dropdown?: ComponentAdapter
+  formItem?: ComponentAdapter
+  grid?: ComponentAdapter
+  table?: ComponentAdapter
+}
 ```
 
 ---
@@ -466,7 +483,32 @@ const searchSchema = columnsToSchema(columns, (col) => !!col.config?.isSearch)
 
 // 编辑表单：包含所有未隐藏的列
 const formSchema = columnsToSchema(columns, (col) => !col.hidden)
+
+// antd 场景：指定默认 span（8/24 = 3 列/行）
+const antdSchema = columnsToSchema(columns, (col) => !!col.config?.isSearch, 8)
 ```
+
+### createAdapter（`src/utils/createAdapter.ts`）
+
+从声明式配置生成 adapter 组件，用于结构变换场景（如 Table 列格式转换）。
+
+```ts
+import { createAdapter } from '@/utils/createAdapter'
+import { Pagination } from 'ant-design-vue'
+
+// 将 naive-ui 的 prop 名映射到 antd
+const AntdPagination = createAdapter(Pagination, {
+  props: { page: 'current', itemCount: 'total' },
+  events: { 'update:page': 'update:current' },
+})
+```
+
+**参数：**
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `component` | `Component` | 被包装的目标 UI 库组件 |
+| `config` | `AdapterConfig` | adapter 配置（props/events 映射 + 可选 transformProps） |
 
 ### clearAndReassign（`src/utils/reactive.ts`）
 
@@ -579,6 +621,37 @@ const { page, pageSize, onPageChange } = usePaginationState(props, emit)
 | `page` | `WritableComputedRef<number>` | 页码双向绑定 |
 | `pageSize` | `WritableComputedRef<number>` | 每页条数双向绑定 |
 | `onPageChange` | `(newPage: number, newPageSize: number) => void` | 统一变化处理（pageSize 变化时自动重置 page 为 1） |
+
+### useComponentAdapter
+
+根据注入的 `adapters` 配置，提供 prop/event/slot 名称映射方法，使内部组件无需感知底层 UI 库的 API 命名差异。
+
+```ts
+import { useComponentAdapter } from '@/composables/useComponentAdapter'
+
+const { mapProps, mapEvent } = useComponentAdapter('pagination')
+
+// { page: 1, itemCount: 100 } → { current: 1, total: 100 }
+const mapped = mapProps({ page: 1, itemCount: 100 })
+
+// 'update:page' → 'update:current'
+const eventName = mapEvent('update:page')
+```
+
+**参数：**
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `section` | `string` | 适配器配置的组件类型名（如 `'pagination'`、`'dropdown'`、`'formItem'`） |
+
+**返回值：**
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `adapter` | `ComponentAdapter \| undefined` | 当前组件的适配器配置 |
+| `mapProps` | `(props: Record<string, unknown>) => Record<string, unknown>` | prop 名称映射 |
+| `mapEvent` | `(event: string) => string` | 事件名称映射 |
+| `mapSlot` | `(slot: string) => string` | 插槽名称映射 |
 
 ---
 
@@ -790,13 +863,22 @@ app.use(TableProPlugin, {
         actions: 'action',
       },
     },
+    // 通用组件适配器：声明式 prop/event 名称映射
+    adapters: {
+      pagination: {
+        props: { page: 'current', itemCount: 'total' },
+        events: { 'update:page': 'update:current' },
+      },
+    },
   },
 })
 ```
 
 ### 跨 UI 库适配
 
-通过 `modalAdapter` 配置可以适配不同的 UI 库：
+框架提供两层适配机制：
+
+**1. Modal 适配器（`modalAdapter`）** — 弹窗显隐 prop/event/slot 映射：
 
 ```ts
 // Naive UI（默认）
@@ -813,6 +895,23 @@ modalAdapter: {
   slots: { header: 'header', actions: 'footer' },
 }
 ```
+
+**2. 通用组件适配器（`adapters`）** — 分页、表单等组件的 prop/event 名称映射：
+
+```ts
+// Ant Design Vue 示例
+adapters: {
+  pagination: {
+    props: { page: 'current', itemCount: 'total', showSizePicker: 'showSizeChanger' },
+    events: { 'update:page': 'update:current' },
+  },
+  formItem: {
+    props: { path: 'name', rule: 'rules' },
+  },
+}
+```
+
+内部组件通过 `useComponentAdapter` composable 自动应用映射。对于结构变换场景（如 Table 列格式转换），使用 `createAdapter` 工具函数或手写 adapter 组件。
 
 ---
 

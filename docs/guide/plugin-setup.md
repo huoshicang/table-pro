@@ -60,6 +60,17 @@ app.use(TableProPlugin, {
         actions: 'action',        // 底部操作插槽名
       },
     },
+
+    // 通用组件适配器（prop/event 名称映射）
+    adapters: {
+      pagination: {
+        props: { page: 'current', itemCount: 'total' },       // prop 名映射
+        events: { 'update:page': 'update:current' },           // 事件名映射
+      },
+      formItem: {
+        props: { path: 'name', rule: 'rules' },
+      },
+    },
   },
 })
 ```

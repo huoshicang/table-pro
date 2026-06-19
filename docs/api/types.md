@@ -209,6 +209,30 @@ interface ModalAdapter {
 }
 ```
 
+### ComponentAdapter
+
+通用组件适配器配置，将框架内部的 prop/event/slot 名称映射到目标 UI 库的实际名称。
+
+```ts
+interface ComponentAdapter {
+  props?: Record<string, string>    // prop 名称映射，如 { page: 'current' }
+  events?: Record<string, string>   // 事件名称映射，如 { 'update:page': 'update:current' }
+  slots?: Record<string, string>    // 插槽名称映射
+}
+```
+
+### AdaptersConfig
+
+```ts
+interface AdaptersConfig {
+  pagination?: ComponentAdapter
+  dropdown?: ComponentAdapter
+  formItem?: ComponentAdapter
+  grid?: ComponentAdapter
+  table?: ComponentAdapter
+}
+```
+
 ### ComponentDefaultsConfig
 
 ```ts
@@ -231,5 +255,6 @@ interface TableProConfig {
   text?: string
   components?: ComponentDefaultsConfig
   modalAdapter?: ModalAdapter
+  adapters?: AdaptersConfig
 }
 ```

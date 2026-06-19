@@ -98,3 +98,39 @@ const { page, pageSize, onPageChange } = usePaginationState(props, emit)
 | `page` | `WritableComputedRef<number>` | 页码双向绑定 |
 | `pageSize` | `WritableComputedRef<number>` | 每页条数双向绑定 |
 | `onPageChange` | `(newPage: number, newPageSize: number) => void` | 统一变化处理（pageSize 变化时自动重置 page 为 1） |
+
+---
+
+## useComponentAdapter
+
+根据注入的 `adapters` 配置，提供 prop/event/slot 名称映射方法，使内部组件无需感知底层 UI 库的 API 命名差异。
+
+```ts
+import { useComponentAdapter } from 'table-pro'
+
+const { mapProps, mapEvent, mapSlot } = useComponentAdapter('pagination')
+
+// prop 映射：{ page: 1, itemCount: 100 } → { current: 1, total: 100 }
+const mapped = mapProps({ page: 1, itemCount: 100 })
+
+// 事件映射：'update:page' → 'update:current'
+const eventName = mapEvent('update:page')
+
+// 插槽映射
+const slotName = mapSlot('actions')
+```
+
+### 参数
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `section` | `string` | 适配器配置的组件类型名（如 `'pagination'`、`'dropdown'`、`'formItem'`） |
+
+### 返回值
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `adapter` | `ComponentAdapter \| undefined` | 当前组件的适配器配置 |
+| `mapProps` | `(props: Record<string, unknown>) => Record<string, unknown>` | prop 名称映射 |
+| `mapEvent` | `(event: string) => string` | 事件名称映射 |
+| `mapSlot` | `(slot: string) => string` | 插槽名称映射 |
