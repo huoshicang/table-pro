@@ -1,17 +1,15 @@
 <template>
   <!-- 根节点：form 组件包裹全部字段，通过动态组件渲染 -->
-  <component :is="Form" ref="formRef" :model="formValue" v-bind="mergedFormProps">
+  <component :is="Form" ref="formRef" :model="formValue" v-bind="mappedFormProps">
     <!-- grid 组件提供栅格布局 -->
-    <component :is="Grid" v-bind="mergedGridProps">
+    <component :is="Grid" v-bind="mappedGridProps">
       <!-- 每个字段的 grid-item -->
       <component :is="GridItem" v-for="field in schema" :key="field.name" :span="field.span ?? 1">
         <!-- form-item：label / path / rule 来自 field 自身，基础 props 走全局合并 -->
         <component
           :is="FormItem"
           :label="field.label"
-          :path="field.name"
-          :rule="field.rules"
-          v-bind="mergedFormItemBaseProps"
+          v-bind="mappedFieldProps(field)"
         >
           <!-- 字段输入组件，类型由 field.type 决定，props 由 field.componentProps 传入 -->
           <component
@@ -34,11 +32,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 import type { ComponentPublicInstance } from 'vue'
 import { useComponentMap } from '@/composables/useComponentMap'
 import { useMergedProps } from '@/composables/useMergedProps'
+import { useComponentAdapter } from '@/composables/useComponentAdapter'
 import { clearAndReassign } from '@/utils/reactive'
 import type { FormConfig, GridConfig, FormItemConfig } from '@/index'
 import type { SearchField } from '@/types/search'
@@ -47,23 +46,13 @@ import type { SearchField } from '@/types/search'
 // Props & Emits
 // ========================================================================
 
-/** 表单渲染组件的属性定义 —— 纯表单字段渲染，不含操作按钮 */
 interface Props {
-  /** 字段配置数组，每个元素定义一个字段的 name / label / type 等 */
   schema: SearchField[]
-  /** 表单数据（双向绑定），key 为字段名，value 为用户输入的值 */
   modelValue?: Record<string, unknown>
-  /** form 组件的 props，合并时会覆盖全局配置中的同名字段 */
   formProps?: FormConfig
-  /** grid 组件的 props（含 cols / xGap / yGap 等），合并时会覆盖全局配置中的同名字段 */
   gridProps?: GridConfig
-  /** form-item 组件的 props，合并时会覆盖全局配置中的同名字段 */
   formItemProps?: FormItemConfig
 }
-
-// ========================================================================
-// Props 默认值
-// ========================================================================
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => ({}),
@@ -80,19 +69,15 @@ const emit = defineEmits<{
 // 依赖注入与状态
 // ========================================================================
 
-/** 表单组件 ref，用于调用 form 组件的 validate 方法 */
 const formRef = ref<ComponentPublicInstance | null>(null)
-/** 从 ComponentMap 获取组件，提取常用组件为变量避免模板中重复调用 */
 const { getComponent } = useComponentMap()
 const Form = getComponent('form')
 const Grid = getComponent('grid')
 const FormItem = getComponent('formItem')
 const GridItem = getComponent('gridItem')
 
-/** 表单响应式数据 */
 const formValue = reactive<Record<string, unknown>>({ ...(props.modelValue ?? {}) })
 
-/** 父组件外部修改 modelValue 时同步到内部状态 */
 watch(
   () => props.modelValue,
   (val) => {
@@ -103,37 +88,46 @@ watch(
 )
 
 // ========================================================================
-// 配置合并：全局默认 → 组件 props 覆盖（computed 响应式）
+// 配置合并 + 适配器映射
 // ========================================================================
 
-/** 合并 form 配置：全局默认 → 组件传入 props，后者覆盖前者 */
+const { mapProps: mapFormProps } = useComponentAdapter('form')
+const { mapProps: mapGridProps } = useComponentAdapter('grid')
+const { mapProps: mapFormItemProps } = useComponentAdapter('formItem')
+
 const mergedFormProps = useMergedProps<FormConfig>('form', () => props.formProps)
 
-/** 合并 grid 配置：全局默认 → 组件传入 props，后者覆盖前者 */
 const mergedGridProps = useMergedProps<GridConfig>('grid', () => props.gridProps, {
   xGap: 12,
   yGap: 8,
   cols: 4,
 })
 
-/** 合并 form-item 基础 props：全局默认 → 组件传入 props，后者覆盖前者
- * label / path / rule 在模板中由 field 级别单独传入，不在此合并
- */
 const mergedFormItemBaseProps = useMergedProps<FormItemConfig>(
   'formItem',
   () => props.formItemProps,
   { labelWidth: 80, labelPlacement: 'left' },
 )
 
-/** 更新表单字段值并同步到父组件 */
+/** form props 经适配器映射 */
+const mappedFormProps = computed(() => mapFormProps(mergedFormProps.value as Record<string, unknown>))
+
+/** grid props 经适配器映射（如 xGap → gutter） */
+const mappedGridProps = computed(() => mapGridProps(mergedGridProps.value as Record<string, unknown>))
+
+/** 生成单个字段的 formItem props（含 field 级别的 path/rule + 全局 base props），经适配器映射 */
+function mappedFieldProps(field: SearchField) {
+  return mapFormItemProps({
+    ...mergedFormItemBaseProps.value,
+    path: field.name,
+    rule: field.rules,
+  })
+}
+
 function updateField(name: string, value: unknown) {
   formValue[name] = value
   emit('update:modelValue', { ...formValue })
 }
-
-// ========================================================================
-// 对外暴露：父组件可通过 ref 访问 formRef（校验）和 formValue（读写）
-// ========================================================================
 
 defineExpose({ formRef, formValue })
 </script>

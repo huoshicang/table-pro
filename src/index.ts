@@ -322,6 +322,34 @@ export interface ModalAdapter {
   }
 }
 
+/** 通用组件适配器配置
+ * @description 将框架内部的 prop/event/slot 名称映射到目标 UI 库的实际名称，
+ * 解决不同 UI 库之间 API 命名差异（如 naive-ui 的 `page` vs antd 的 `current`）。
+ * 适用于简单名称映射场景；结构变换（如 Table 列格式转换）需使用 adapter 组件。
+ */
+export interface ComponentAdapter {
+  /** prop 名称映射：框架内部名 → UI 库实际名，如 { page: 'current', itemCount: 'total' } */
+  props?: Record<string, string>
+  /** 事件名称映射：框架内部名 → UI 库实际名，如 { 'update:page': 'update:current' } */
+  events?: Record<string, string>
+  /** 插槽名称映射：框架内部名 → UI 库实际名 */
+  slots?: Record<string, string>
+}
+
+/** 适配器配置映射 */
+export interface AdaptersConfig {
+  /** 分页组件适配器 */
+  pagination?: ComponentAdapter
+  /** 下拉菜单适配器 */
+  dropdown?: ComponentAdapter
+  /** 表单项适配器 */
+  formItem?: ComponentAdapter
+  /** 网格布局适配器 */
+  grid?: ComponentAdapter
+  /** 表格适配器（结构变换场景建议使用 adapter 组件） */
+  table?: ComponentAdapter
+}
+
 /** 插件配置 */
 export interface TableProConfig {
   /** 调试模式，开启后会在控制台输出更多信息，仅开发阶段使用 */
@@ -345,6 +373,13 @@ export interface TableProConfig {
    * @example modalAdapter: { visibleProp: 'visible', visibleEvent: 'update:visible' } // Ant Design / Element
    */
   modalAdapter?: ModalAdapter
+  /**
+   * 通用组件适配器配置
+   * @description 将框架内部的 prop/event/slot 名称映射到目标 UI 库的实际名称。
+   * 每个 key 对应一个组件类型，值为该组件的名称映射配置。
+   * @example adapters: { pagination: { props: { page: 'current' }, events: { 'update:page': 'update:current' } } }
+   */
+  adapters?: AdaptersConfig
 }
 
 /** 注入的数据类型 */
@@ -396,6 +431,7 @@ export { default as TableAction } from '@/components/TableAction.vue'
 export { useComponentMap } from '@/composables/useComponentMap'
 export { useMergedProps } from '@/composables/useMergedProps'
 export { usePaginationState } from '@/composables/usePaginationState'
+export { useComponentAdapter } from '@/composables/useComponentAdapter'
 
 // ========================================================================
 // 工具函数导出
@@ -403,6 +439,8 @@ export { usePaginationState } from '@/composables/usePaginationState'
 
 export { columnsToSchema } from '@/types/table'
 export { clearAndReassign } from '@/utils/reactive'
+export { createAdapter } from '@/utils/createAdapter'
+export type { AdapterConfig } from '@/utils/createAdapter'
 
 // ========================================================================
 // 共享类型导出

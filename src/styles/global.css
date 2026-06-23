@@ -1,4 +1,5 @@
-#app {
+#app-naive,
+#app-antd {
   padding: 20px;
   margin: 20px;
 }

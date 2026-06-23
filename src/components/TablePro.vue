@@ -85,6 +85,8 @@ interface Props {
   itemCount?: number
   /** 分页组件的 props，合并时会覆盖全局配置中的同名字段 */
   paginationProps?: PaginationConfig
+  /** 表单字段默认栅格跨度（默认 1，antd 24 列栅格建议 8） */
+  defaultSpan?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -95,6 +97,7 @@ const props = withDefaults(defineProps<Props>(), {
   pageSize: 10,
   itemCount: 0,
   paginationProps: () => ({}),
+  defaultSpan: 1,
 })
 
 const emit = defineEmits<{
@@ -115,7 +118,9 @@ const emit = defineEmits<{
 // ========================================================================
 
 /** 从 columns 自动派生搜索表单 schema：仅包含 config.isSearch 为 true 的列 */
-const searchSchema = computed(() => columnsToSchema(props.columns, (col) => !!col.config?.isSearch))
+const searchSchema = computed(() =>
+  columnsToSchema(props.columns, (col) => !!col.config?.isSearch, props.defaultSpan),
+)
 
 const searchForm = ref<Record<string, unknown>>({})
 
@@ -156,7 +161,9 @@ const modalMode = ref<'add' | 'edit' | 'detail'>('add')
 const editingRow = ref<Record<string, unknown> | null>(null)
 
 /** 从 columns 自动派生 Modal 表单 schema，仅包含未隐藏的列 */
-const derivedFormSchema = computed(() => columnsToSchema(props.columns, (col) => !col.hidden))
+const derivedFormSchema = computed(() =>
+  columnsToSchema(props.columns, (col) => !col.hidden, props.defaultSpan),
+)
 
 /** 打开新增弹窗 */
 function openAdd() {

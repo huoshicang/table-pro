@@ -55,7 +55,6 @@ const props = withDefaults(
 
 const { getComponent } = useComponentMap()
 
-/** 常用组件引用 */
 const Button = getComponent('button')
 const Space = getComponent('space')
 const Dropdown = getComponent('dropdown')

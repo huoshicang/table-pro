@@ -56,22 +56,26 @@ export interface TableColumn<T = unknown> {
  * 提取公共的 map 逻辑，避免在多处重复相同的列→字段映射代码。
  * @param columns - 列配置数组
  * @param filter - 过滤函数，决定哪些列参与表单
+ * @param defaultSpan - 默认栅格跨度（naive-ui: 1 = 1列/行，antd: 8 = 3列/行）
  * @returns 符合 SearchField[] 格式的表单 schema
  * @example
  * // 搜索表单：仅包含 isSearch 为 true 的列
  * const searchSchema = columnsToSchema(columns, c => !!c.config?.isSearch)
  * // 编辑表单：包含所有未隐藏的列
  * const formSchema = columnsToSchema(columns, c => !c.hidden)
+ * // antd 场景：指定默认 span
+ * const searchSchema = columnsToSchema(columns, c => !!c.config?.isSearch, 8)
  */
 export function columnsToSchema(
   columns: TableColumn[],
   filter: (col: TableColumn) => boolean,
+  defaultSpan = 1,
 ): SearchField[] {
   return columns.filter(filter).map((col) => ({
     name: col.key,
     label: col.title,
     type: col.config?.type ?? 'input',
-    span: 1,
+    span: defaultSpan,
     componentProps: col.meta,
   }))
 }
