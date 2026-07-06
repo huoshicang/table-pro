@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 
 import { useComponentMap } from '@/composables/useComponentMap'
 import type { FormConfig, GridConfig, FormItemConfig } from '@/index'
@@ -52,8 +52,6 @@ import FormRenderer from '@/components/FormRenderer.vue'
 interface Props {
   /** 搜索字段配置数组，每个元素定义一个字段的 name / label / type 等 */
   schema: SearchField[]
-  /** 表单数据（双向绑定），key 为字段名，value 为用户输入的值 */
-  modelValue?: Record<string, unknown>
   /** form 组件的 props，合并时会覆盖全局配置中的同名字段 */
   formProps?: FormConfig
   /** grid 组件的 props（含 cols / xGap / yGap 等），合并时会覆盖全局配置中的同名字段 */
@@ -69,19 +67,19 @@ interface Props {
 // ========================================================================
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: () => ({}),
   formProps: () => ({}),
   gridProps: () => ({}),
   formItemProps: () => ({}),
   defaultVisibleCount: 3,
 })
 
+const model = defineModel<Record<string, unknown>>({ default: () => ({}) })
+
 const emit = defineEmits<{
   /** 用户点击搜索按钮时触发，参数为当前表单值 */
   search: [values: Record<string, unknown>]
   /** 用户点击重置按钮时触发 */
   reset: []
-  'update:modelValue': [value: Record<string, unknown>]
 }>()
 
 const { getComponent } = useComponentMap()
@@ -92,16 +90,7 @@ const Space = getComponent('space')
 const formRendererRef = ref<FormRendererInstance | null>(null)
 
 /** 表单数据，通过 v-model 与 FormRenderer 双向同步 */
-const formData = ref<Record<string, unknown>>({ ...(props.modelValue ?? {}) })
-
-/** 将 FormRenderer 的数据变更同步到 Search 的父组件 */
-watch(
-  formData,
-  (val) => {
-    emit('update:modelValue', { ...val })
-  },
-  { deep: true },
-)
+const formData = model
 
 /** 是否展开所有字段（默认收起，超出阈值时只显示前 defaultVisibleCount 个） */
 const expanded = ref(false)
@@ -145,7 +134,6 @@ function handleReset() {
     }
   }
   formData.value = fv ? { ...fv } : {}
-  emit('update:modelValue', { ...formData.value })
   emit('reset')
 }
 </script>

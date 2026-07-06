@@ -36,12 +36,11 @@
 
   <!-- 新增/编辑/详情 Modal -->
   <Modal
-    :visible="modalVisible"
+    v-model:visible="modalVisible"
     :mode="modalMode"
     :row-data="editingRow"
     :form-schema="derivedFormSchema"
     :confirm-handlers="confirmHandlers"
-    @update:visible="modalVisible = $event"
     @cancel="handleModalCancel"
   >
     <!-- 动态透传父组件所有 slot 到 Modal -->
@@ -52,13 +51,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 
 import Search from '@/components/Search.vue'
 import Table from '@/components/Table.vue'
 import Modal from '@/components/Modal.vue'
 import Pagination from '@/components/Pagination.vue'
-import { usePaginationState } from '@/composables/usePaginationState'
 import { columnsToSchema } from '@/types/table'
 import type { TableColumn } from '@/types/table'
 import type { FormConfig, PaginationConfig } from '@/index'
@@ -77,10 +75,6 @@ interface Props {
   formProps?: FormConfig
   /** Modal 确认回调，按模式分发 */
   confirmHandlers?: ConfirmHandlers
-  /** 当前页码（v-model） */
-  page?: number
-  /** 每页条数（v-model） */
-  pageSize?: number
   /** 总条目数 */
   itemCount?: number
   /** 分页组件的 props，合并时会覆盖全局配置中的同名字段 */
@@ -93,12 +87,13 @@ const props = withDefaults(defineProps<Props>(), {
   data: () => [],
   formProps: () => ({}),
   confirmHandlers: () => ({}),
-  page: 1,
-  pageSize: 10,
   itemCount: 0,
   paginationProps: () => ({}),
   defaultSpan: 1,
 })
+
+const page = defineModel<number>('page', { default: 1 })
+const pageSize = defineModel<number>('pageSize', { default: 10 })
 
 const emit = defineEmits<{
   /** 用户点击搜索按钮 */
@@ -107,9 +102,6 @@ const emit = defineEmits<{
   reset: []
   /** 用户点击批量删除 */
   'batch-delete': [keys: unknown[]]
-  /** 页码或每页条数变化 */
-  'update:page': [page: number]
-  'update:pageSize': [pageSize: number]
   change: [page: number, pageSize: number]
 }>()
 
@@ -150,7 +142,12 @@ function handleAction(actionKey: string) {
 // ========================================================================
 
 /** 统一管理 page/pageSize 的双向绑定，自动处理 pageSize 变化时的页码重置 */
-const { page, pageSize, onPageChange } = usePaginationState(props, emit)
+function onPageChange(newPage: number, newPageSize: number) {
+  const effectivePage = newPageSize !== pageSize.value ? 1 : newPage
+  page.value = effectivePage
+  pageSize.value = newPageSize
+  emit('change', effectivePage, newPageSize)
+}
 
 // ========================================================================
 // Modal（新增/编辑/详情）

@@ -14,8 +14,7 @@
           <!-- 字段输入组件，类型由 field.type 决定，props 由 field.componentProps 传入 -->
           <component
             :is="getComponent(field.type ?? 'input')"
-            :value="formValue[field.name]"
-            @update:value="(val: unknown) => updateField(field.name, val)"
+            v-model:value="formValue[field.name]"
             v-bind="{ style: { width: '100%' }, ...field.componentProps }"
             :placeholder="field.componentProps?.placeholder ?? `请输入${field.label}`"
           />
@@ -48,22 +47,18 @@ import type { SearchField } from '@/types/search'
 
 interface Props {
   schema: SearchField[]
-  modelValue?: Record<string, unknown>
   formProps?: FormConfig
   gridProps?: GridConfig
   formItemProps?: FormItemConfig
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: () => ({}),
   formProps: () => ({}),
   gridProps: () => ({}),
   formItemProps: () => ({}),
 })
 
-const emit = defineEmits<{
-  'update:modelValue': [value: Record<string, unknown>]
-}>()
+const model = defineModel<Record<string, unknown>>({ default: () => ({}) })
 
 // ========================================================================
 // 依赖注入与状态
@@ -76,13 +71,18 @@ const Grid = getComponent('grid')
 const FormItem = getComponent('formItem')
 const GridItem = getComponent('gridItem')
 
-const formValue = reactive<Record<string, unknown>>({ ...(props.modelValue ?? {}) })
+const formValue = reactive<Record<string, unknown>>({ ...model.value })
+
+watch(model, (val) => {
+  if (!val || isSameRecord(formValue, val)) return
+  clearAndReassign(formValue, val)
+})
 
 watch(
-  () => props.modelValue,
+  formValue,
   (val) => {
-    if (!val) return
-    clearAndReassign(formValue, val)
+    if (isSameRecord(model.value, val)) return
+    model.value = { ...val }
   },
   { deep: true },
 )
@@ -124,9 +124,13 @@ function mappedFieldProps(field: SearchField) {
   })
 }
 
-function updateField(name: string, value: unknown) {
-  formValue[name] = value
-  emit('update:modelValue', { ...formValue })
+function isSameRecord(a: Record<string, unknown>, b: Record<string, unknown>) {
+  const aKeys = Object.keys(a)
+  const bKeys = Object.keys(b)
+
+  if (aKeys.length !== bKeys.length) return false
+
+  return aKeys.every((key) => Object.is(a[key], b[key]))
 }
 
 defineExpose({ formRef, formValue })
