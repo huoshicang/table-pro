@@ -37,10 +37,11 @@
 </template>
 
 <script setup lang="ts" generic="T">
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 import { useComponentMap } from '@/composables/useComponentMap'
 import { useMergedProps } from '@/composables/useMergedProps'
+import { clearAndReassign } from '@/utils/reactive'
 import FormRenderer from '@/components/FormRenderer.vue'
 import type { SearchField } from '@/types/search'
 import type { ModalConfig, FormConfig } from '@/index'
@@ -51,6 +52,8 @@ import type { ConfirmHandlers, FormRendererInstance } from '@/types/common'
 // ========================================================================
 
 interface Props {
+  /** 弹窗显隐 */
+  visible?: boolean
   /** 弹窗模式：add | edit | detail */
   mode?: 'add' | 'edit' | 'detail'
   /** 编辑/详情时的行数据 */
@@ -64,6 +67,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  visible: false,
   mode: 'add',
   rowData: null,
   formSchema: () => [],
@@ -71,9 +75,8 @@ const props = withDefaults(defineProps<Props>(), {
   confirmHandlers: () => ({}),
 })
 
-const visible = defineModel<boolean>('visible', { default: false })
-
 const emit = defineEmits<{
+  'update:visible': [value: boolean]
   /** 取消 */
   cancel: []
 }>()
@@ -122,7 +125,7 @@ const title = computed(() => {
 const baseModalProps = useMergedProps<ModalConfig>('modal', () => props.modalProps)
 const mergedModalProps = computed(() => ({
   ...baseModalProps.value,
-  [modalAdapter.visibleProp || 'show']: visible.value,
+  [modalAdapter.visibleProp || 'show']: props.visible,
 }))
 
 /** 详情模式下禁用全部表单项 */
@@ -136,11 +139,11 @@ const detailFormProps = computed<FormConfig>(() =>
 
 const formRendererRef = ref<FormRendererInstance | null>(null)
 /** 表单响应式数据，由 FormRenderer v-model 双向绑定 */
-const formData = defineModel<Record<string, unknown>>({ default: () => ({}) })
+const formData = reactive<Record<string, unknown>>({})
 
 /** 弹窗打开时初始化表单数据：新增为空，编辑/详情填入 rowData */
 watch(
-  visible,
+  () => props.visible,
   (isVisible) => {
     if (!isVisible) return
 
@@ -149,7 +152,7 @@ watch(
       (props.mode === 'edit' || props.mode === 'detail') && props.rowData
         ? (props.rowData as Record<string, unknown>)
         : {}
-    formData.value = { ...source }
+    clearAndReassign(formData, source)
   },
 )
 
@@ -163,25 +166,25 @@ function handleConfirm() {
   if (formRef && typeof (formRef as any).validate === 'function') {
     ;(formRef as any).validate((errors: unknown) => {
       if (!errors) {
-        const currentData = formRendererRef.value?.formValue ?? formData.value
+        const currentData = formRendererRef.value?.formValue ?? { ...formData }
         props.confirmHandlers?.[props.mode]?.({ ...currentData })
-        visible.value = false
+        emit('update:visible', false)
       }
     })
   } else {
-    props.confirmHandlers?.[props.mode]?.({ ...formData.value })
-    visible.value = false
+    props.confirmHandlers?.[props.mode]?.({ ...formData })
+    emit('update:visible', false)
   }
 }
 
 function handleCancel() {
   emit('cancel')
-  visible.value = false
+  emit('update:visible', false)
 }
 
 /** 可见性变化回调，由 modalAdapter.visibleEvent 事件触发 */
 function onVisibleChange(value: boolean) {
-  visible.value = value
+  emit('update:visible', value)
 }
 
 // ========================================================================

@@ -8,6 +8,7 @@ import { computed } from 'vue'
 import { useComponentMap } from '@/composables/useComponentMap'
 import { useMergedProps } from '@/composables/useMergedProps'
 import { useComponentAdapter } from '@/composables/useComponentAdapter'
+import { usePaginationState } from '@/composables/usePaginationState'
 import type { PaginationConfig } from '@/index'
 
 // ========================================================================
@@ -15,6 +16,10 @@ import type { PaginationConfig } from '@/index'
 // ========================================================================
 
 interface Props {
+  /** 当前页码（v-model） */
+  page?: number
+  /** 每页条数（v-model） */
+  pageSize?: number
   /** 总页数 */
   pageCount?: number
   /** 总条目数 */
@@ -24,15 +29,16 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  page: 1,
+  pageSize: 10,
   pageCount: 1,
   itemCount: 0,
   paginationProps: () => ({}),
 })
 
-const page = defineModel<number>('page', { default: 1 })
-const pageSize = defineModel<number>('pageSize', { default: 10 })
-
 const emit = defineEmits<{
+  'update:page': [page: number]
+  'update:page-size': [pageSize: number]
   /** 页码或每页条数变化时触发 */
   change: [page: number, pageSize: number]
 }>()
@@ -49,12 +55,7 @@ const { mapProps, mapEvent } = useComponentAdapter('pagination')
 // 分页状态
 // ========================================================================
 
-function onPageChange(newPage: number, newPageSize: number) {
-  const effectivePage = newPageSize !== pageSize.value ? 1 : newPage
-  page.value = effectivePage
-  pageSize.value = newPageSize
-  emit('change', effectivePage, newPageSize)
-}
+const { page, pageSize, onPageChange } = usePaginationState(props, emit)
 
 function handlePageUpdate(newPage: number) {
   onPageChange(newPage, pageSize.value)
