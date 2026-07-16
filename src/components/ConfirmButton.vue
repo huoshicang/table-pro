@@ -2,21 +2,32 @@
   <!--
     triggerMode: 'slot' → 用插槽包裹触发元素
     triggerMode: 'wrap' → 直接包裹子元素
+    未注册 popconfirm 组件时，直接渲染子元素（无确认弹框）
   -->
-  <component
-    v-if="Popconfirm"
-    :is="Popconfirm"
-    v-bind="popconfirmProps"
-    @[confirmEvent]="onConfirm"
-    @[cancelEvent]="onCancel"
-  >
-    <template v-if="triggerMode === 'slot' && triggerSlotName" #[triggerSlotName]>
+  <template v-if="Popconfirm">
+    <!-- slot 模式：用指定插槽包裹触发元素 -->
+    <component
+      v-if="triggerMode === 'slot'"
+      :is="Popconfirm"
+      v-bind="popconfirmProps"
+      @[confirmEvent]="onConfirm"
+      @[cancelEvent]="onCancel"
+    >
+      <template #[triggerSlotName]>
+        <slot />
+      </template>
+    </component>
+    <!-- wrap 模式：直接包裹子元素 -->
+    <component
+      v-else
+      :is="Popconfirm"
+      v-bind="popconfirmProps"
+      @[confirmEvent]="onConfirm"
+      @[cancelEvent]="onCancel"
+    >
       <slot />
-    </template>
-    <template v-else>
-      <slot />
-    </template>
-  </component>
+    </component>
+  </template>
   <slot v-else />
 </template>
 
@@ -74,12 +85,9 @@ const confirmEvent = computed(() => mapEvent('confirm'))
 const cancelEvent = computed(() => mapEvent('cancel'))
 
 /** Popconfirm 的 props（传入确认提示文案） */
-const popconfirmProps = computed(() => {
-  // 不同 UI 库的 prop 名不同，尝试常见的名称
-  return {
-    title: props.confirmTitle,
-  }
-})
+const popconfirmProps = computed(() => ({
+  title: props.confirmTitle,
+}))
 
 // ========================================================================
 // 事件处理
