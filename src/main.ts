@@ -39,7 +39,6 @@ import {
   NModal,
   NPagination,
   NDropdown,
-  NPopconfirm,
   NText,
 } from 'naive-ui'
 
@@ -66,7 +65,6 @@ import {
   Space,
   Modal,
   Pagination,
-  Popconfirm,
   Typography,
 } from 'ant-design-vue'
 
@@ -106,7 +104,6 @@ naiveApp.use(TableProPlugin, {
     modal: NModal,
     pagination: NPagination,
     dropdown: NDropdown,
-    popconfirm: NPopconfirm,
     text: NText,
   },
 
@@ -177,19 +174,6 @@ naiveApp.use(TableProPlugin, {
 
       // 下拉菜单适配器（对应 n-dropdown）
       dropdown: {},
-
-      // 气泡确认框适配器（对应 n-popconfirm）
-      // triggerMode: 'slot' — Naive UI 用 #trigger 插槽包裹触发元素
-      // triggerSlot: 'trigger' — 插槽名固定为 'trigger'
-      // events: positive-click → confirm, negative-click → cancel
-      popconfirm: {
-        triggerMode: 'slot',
-        triggerSlot: 'trigger',
-        events: {
-          'positive-click': 'confirm',
-          'negative-click': 'cancel',
-        },
-      },
     },
   },
 })
@@ -232,7 +216,6 @@ antdApp.use(TableProPlugin, {
     modal: Modal,
     pagination: Pagination,
     dropdown: AntdDropdownAdapter,
-    popconfirm: Popconfirm,
     text: Typography.Text,
   },
 
@@ -318,17 +301,6 @@ antdApp.use(TableProPlugin, {
 
       // 下拉菜单适配器（使用 adapter 组件 AntdDropdownAdapter，无需 prop 映射）
       dropdown: {},
-
-      // 气泡确认框适配器（对应 a-popconfirm）
-      // triggerMode: 'wrap' — antd 直接包裹子元素作为触发器
-      // events: confirm → confirm, cancel → cancel（无需映射，但显式声明保持一致）
-      popconfirm: {
-        triggerMode: 'wrap',
-        events: {
-          confirm: 'confirm',
-          cancel: 'cancel',
-        },
-      },
     },
   },
 })

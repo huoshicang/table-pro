@@ -1,41 +1,32 @@
 <template>
   <!--
-    triggerMode: 'slot' → 用插槽包裹触发元素
-    triggerMode: 'wrap' → 直接包裹子元素
-    未注册 popconfirm 组件时，直接渲染子元素（无确认弹框）
+    二次确认按钮：点击后弹出 Modal 确认弹窗
+    未注册 modal 组件时，直接渲染子元素（无确认弹框）
   -->
-  <template v-if="Popconfirm">
-    <!-- slot 模式：用指定插槽包裹触发元素 -->
-    <component
-      v-if="triggerMode === 'slot'"
-      :is="Popconfirm"
-      v-bind="popconfirmProps"
-      @[confirmEvent]="onConfirm"
-      @[cancelEvent]="onCancel"
-    >
-      <template #[triggerSlotName]>
-        <slot />
-      </template>
-    </component>
-    <!-- wrap 模式：直接包裹子元素 -->
-    <component
-      v-else
-      :is="Popconfirm"
-      v-bind="popconfirmProps"
-      @[confirmEvent]="onConfirm"
-      @[cancelEvent]="onCancel"
-    >
+  <template v-if="Modal">
+    <span @click="visible = true">
       <slot />
-    </component>
+    </span>
+    <component
+      :is="Modal"
+      :show="visible"
+      @[visibleEvent]="(val: boolean) => (visible = val)"
+      preset="dialog"
+      type="warning"
+      :title="confirmTitle"
+      positive-text="确认"
+      negative-text="取消"
+      @positive-click="onConfirm"
+      @negative-click="onCancel"
+    />
   </template>
   <slot v-else />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref } from 'vue'
 
 import { useComponentMap } from '@/composables/useComponentMap'
-import { useComponentAdapter } from '@/composables/useComponentAdapter'
 
 // ========================================================================
 // Props & Emits
@@ -46,7 +37,7 @@ interface Props {
   confirmTitle?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   confirmTitle: '确认执行此操作？',
 })
 
@@ -61,43 +52,29 @@ const emit = defineEmits<{
 // 依赖注入
 // ========================================================================
 
-const { getComponent } = useComponentMap()
-const Popconfirm = getComponent('popconfirm')
+const { getComponent, injection } = useComponentMap()
+const Modal = getComponent('modal')
 
-const { adapter, mapEvent } = useComponentAdapter('popconfirm')
+/** Modal 显隐事件名，从 modalAdapter 配置中获取 */
+const visibleEvent = injection.config?.modalAdapter?.visibleEvent ?? 'update:show'
 
 // ========================================================================
-// 适配器配置
+// 状态
 // ========================================================================
 
-/** 触发器渲染模式：'slot' 用插槽包裹，'wrap' 直接包裹 */
-const triggerMode = computed(() => (adapter as { triggerMode?: string })?.triggerMode ?? 'wrap')
-
-/** 触发器插槽名（仅 slot 模式需要） */
-const triggerSlotName = computed(
-  () => (adapter as { triggerSlot?: string })?.triggerSlot ?? 'trigger',
-)
-
-/** 确认事件名（经适配器映射后） */
-const confirmEvent = computed(() => mapEvent('confirm'))
-
-/** 取消事件名（经适配器映射后） */
-const cancelEvent = computed(() => mapEvent('cancel'))
-
-/** Popconfirm 的 props（传入确认提示文案） */
-const popconfirmProps = computed(() => ({
-  title: props.confirmTitle,
-}))
+const visible = ref(false)
 
 // ========================================================================
 // 事件处理
 // ========================================================================
 
 function onConfirm() {
+  visible.value = false
   emit('confirm')
 }
 
 function onCancel() {
+  visible.value = false
   emit('cancel')
 }
 </script>

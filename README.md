@@ -33,7 +33,7 @@ import {
   NRadioGroup, NRadio, NCheckboxGroup, NCheckbox,
   NInputNumber, NSlider, NRate, NColorPicker,
   NButton, NForm, NFormItem, NGrid, NGridItem, NSpace,
-  NDataTable, NModal, NPagination, NDropdown, NPopconfirm,
+  NDataTable, NModal, NPagination, NDropdown,
   NTag, NTooltip, NPopover,
 } from 'naive-ui'
 
@@ -67,7 +67,6 @@ app.use(TableProPlugin, {
     modal: NModal,
     pagination: NPagination,
     dropdown: NDropdown,
-    popconfirm: NPopconfirm,
     tag: NTag,
     tooltip: NTooltip,
     popover: NPopover,
@@ -86,16 +85,7 @@ app.use(TableProPlugin, {
       visibleEvent: 'update:show',
       slots: { header: 'header', actions: 'action' },
     },
-    adapters: {
-      popconfirm: {
-        triggerMode: 'slot',
-        triggerSlot: 'trigger',
-        events: {
-          'positive-click': 'confirm',
-          'negative-click': 'cancel',
-        },
-      },
-    },
+    adapters: {},
   },
 })
 
@@ -281,7 +271,6 @@ config: {
 | `table` | 表格组件的 prop/event 映射 | 否 | `{}` |
 | `pagination` | 分页组件的 prop/event 映射 | 否 | `{}` |
 | `dropdown` | 下拉菜单组件的 prop/event 映射 | 否 | `{}` |
-| `popconfirm` | 气泡确认框的 prop/event/触发模式映射 | 否 | `{}` |
 
 #### 每个 Key 的子属性
 
@@ -290,8 +279,6 @@ config: {
 | `props` | `Record<string, string>` | prop 名称映射，key 是内部名，value 是 UI 库名 |
 | `events` | `Record<string, string>` | 事件名称映射，key 是内部名，value 是 UI 库名 |
 | `slots` | `Record<string, string>` | 插槽名称映射，key 是内部名，value 是 UI 库名 |
-
-> **popconfirm 特殊字段**：popconfirm adapter 额外支持 `triggerMode` 和 `triggerSlot`，用于配置触发器渲染方式。详见下方说明。
 
 #### 完整示例
 
@@ -305,14 +292,6 @@ config: {
     table: {},
     pagination: {},
     dropdown: {},
-    popconfirm: {
-      triggerMode: 'slot',      // Naive UI 用 #trigger 插槽
-      triggerSlot: 'trigger',   // 插槽名固定为 'trigger'
-      events: {
-        'positive-click': 'confirm',   // 确认事件映射
-        'negative-click': 'cancel',    // 取消事件映射
-      },
-    },
   },
 }
 
@@ -349,46 +328,6 @@ config: {
 
     // dropdown: antd 的 ADropdown 和内部组件 prop 名基本一致
     dropdown: {},
-
-    // popconfirm: antd 用 APopconfirm，直接包裹子元素
-    popconfirm: {
-      triggerMode: 'wrap',      // antd 直接包裹子元素作为触发器
-      events: {
-        confirm: 'confirm',     // 确认事件（无需映射，显式声明保持一致）
-        cancel: 'cancel',       // 取消事件
-      },
-    },
-  },
-}
-```
-
-#### popconfirm 触发器模式
-
-popconfirm adapter 额外支持 `triggerMode` 配置，用于描述 Popconfirm 组件如何包裹触发元素：
-
-| 配置项 | `triggerMode: 'slot'` | `triggerMode: 'wrap'` |
-|--------|----------------------|----------------------|
-| `triggerSlot` | 必填，触发器插槽名 | 不需要 |
-| `events` | 映射确认/取消事件名 | 映射确认/取消事件名 |
-| 适用场景 | Naive UI `NPopconfirm` | Ant Design Vue `APopconfirm` |
-
-```ts
-// triggerMode: 'slot' — 用插槽包裹触发元素
-popconfirm: {
-  triggerMode: 'slot',
-  triggerSlot: 'trigger',              // 触发器插槽名
-  events: {
-    'positive-click': 'confirm',       // 确认事件映射
-    'negative-click': 'cancel',        // 取消事件映射
-  },
-}
-
-// triggerMode: 'wrap' — 直接包裹子元素
-popconfirm: {
-  triggerMode: 'wrap',
-  events: {
-    confirm: 'confirm',                // 确认事件
-    cancel: 'cancel',                  // 取消事件
   },
 }
 ```
@@ -700,7 +639,7 @@ const pagination = ref({ page: 1, pageSize: 10, itemCount: 100 })
 
 ### ConfirmButton
 
-二次确认按钮组件，封装 Popconfirm 的跨 UI 库差异。
+二次确认按钮组件，点击后弹出 Modal 确认弹窗。
 
 **Props：**
 
@@ -719,12 +658,11 @@ const pagination = ref({ page: 1, pageSize: 10, itemCount: 100 })
 
 | Slot | 说明 |
 |------|------|
-| `default` | 触发 Popconfirm 的按钮/元素 |
+| `default` | 触发确认弹窗的按钮/元素 |
 
 **说明：**
-- 通过 `useComponentAdapter('popconfirm')` 映射事件名
-- 根据 `adapter.triggerMode` 决定渲染方式（`'slot'` 用插槽包裹，`'wrap'` 直接包裹）
-- 如果未注册 `popconfirm` 组件，会退化为直接渲染子元素（无确认弹框）
+- 使用已注册的 `modal` 组件弹出确认弹窗，复用 `modalAdapter` 配置
+- 如果未注册 `modal` 组件，会退化为直接渲染子元素（无确认弹框）
 
 ---
 
