@@ -68,6 +68,8 @@ export type ComponentMap = {
   dropdown?: Component
   /** 弹出选择器（Popover） */
   popover?: Component
+  /** 气泡确认框（Popconfirm） */
+  popconfirm?: Component
   /** 自动完成 */
   autoComplete?: Component
   /** 输入框组 */
@@ -293,6 +295,9 @@ export const defaultTableProConfig: TableProConfig = {
       preset: 'dialog',
       style: { width: '80%' },
     },
+    pagination: {
+      pageSizes: [10, 20, 50],
+    },
   },
   modalAdapter: {
     visibleProp: 'show',
@@ -336,6 +341,18 @@ export interface ComponentAdapter {
   slots?: Record<string, string>
 }
 
+/** 气泡确认框适配器配置 */
+export interface PopconfirmAdapter extends ComponentAdapter {
+  /**
+   * 触发器渲染模式
+   * @description 'slot' — 使用插槽包裹触发元素（如 Naive UI 的 #trigger）
+   *              'wrap' — 直接包裹子元素作为触发器（如 Ant Design Vue）
+   */
+  triggerMode: 'slot' | 'wrap'
+  /** 触发器插槽名（仅 triggerMode: 'slot' 时需要，如 Naive UI 固定为 'trigger'） */
+  triggerSlot?: string
+}
+
 /** 适配器配置映射 */
 export interface AdaptersConfig {
   /** 分页组件适配器 */
@@ -348,6 +365,8 @@ export interface AdaptersConfig {
   grid?: ComponentAdapter
   /** 表格适配器（结构变换场景建议使用 adapter 组件） */
   table?: ComponentAdapter
+  /** 气泡确认框适配器 */
+  popconfirm?: PopconfirmAdapter
 }
 
 /** 插件配置 */
@@ -423,6 +442,7 @@ export { default as FormRenderer } from '@/components/FormRenderer.vue'
 export { default as Pagination } from '@/components/Pagination.vue'
 export { default as Modal } from '@/components/Modal.vue'
 export { default as TableAction } from '@/components/TableAction.vue'
+export { default as ConfirmButton } from '@/components/ConfirmButton.vue'
 
 // ========================================================================
 // Composables 导出

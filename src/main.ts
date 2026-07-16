@@ -39,6 +39,7 @@ import {
   NModal,
   NPagination,
   NDropdown,
+  NPopconfirm,
   NText,
 } from 'naive-ui'
 
@@ -65,6 +66,7 @@ import {
   Space,
   Modal,
   Pagination,
+  Popconfirm,
   Typography,
 } from 'ant-design-vue'
 
@@ -75,6 +77,9 @@ import {
 const naiveApp = createApp(App)
 
 naiveApp.use(TableProPlugin, {
+  // ======================================================================
+  // 组件映射：框架内部组件名 → Naive UI 组件
+  // ======================================================================
   components: {
     input: NInput,
     textarea: NInput,
@@ -101,31 +106,89 @@ naiveApp.use(TableProPlugin, {
     modal: NModal,
     pagination: NPagination,
     dropdown: NDropdown,
+    popconfirm: NPopconfirm,
     text: NText,
   },
+
   config: {
     debug: true,
+
+    // ====================================================================
+    // 全局组件默认配置：各子组件可在此基础上传入 props 覆盖
+    // 合并优先级：全局 config < 组件 props
+    // ====================================================================
     components: {
-      formItem: {
-        labelWidth: 80,
-        labelPlacement: 'left',
-      },
-      pagination: {
-        size: 'medium',
-        showQuickJumper: true,
-        showSizePicker: true,
-      },
-      modal: {
-        preset: 'dialog',
-        style: { width: '80%' },
-      },
+      // 表单组件（对应 n-form）
+      form: {},
+
+      // 栅格布局（对应 n-grid）
+      // cols: 等分列数 | xGap: 水平间距 | yGap: 垂直间距
+      grid: { xGap: 12, yGap: 8, cols: 4 },
+
+      // 表单项（对应 n-form-item）
+      // labelWidth: 标签宽度 | labelPlacement: 标签位置
+      formItem: { labelWidth: 80, labelPlacement: 'left' },
+
+      // 表格组件（对应 n-data-table）
+      table: {},
+
+      // 分页组件（对应 n-pagination）
+      // size: 分页尺寸 | pageSizes: 每页条数选项（仅全局配置生效）
+      pagination: { size: 'medium', pageSizes: [10, 20, 50] },
+
+      // 弹窗组件（对应 n-modal）
+      // preset: 预设样式 | style: 内联样式
+      modal: { preset: 'dialog', style: { width: '80%' } },
     },
+
+    // ====================================================================
+    // Modal 适配器：跨 UI 库兼容
+    // key 固定（header / actions），value 为 UI 库实际插槽名
+    // ====================================================================
     modalAdapter: {
+      /** 弹窗显隐 prop 名：'show' (Naive UI) / 'visible' (Ant Design / Element) */
       visibleProp: 'show',
+      /** 显隐变化事件名：与 visibleProp 对应 */
       visibleEvent: 'update:show',
       slots: {
+        /** 头部插槽名（key 固定为 'header'，value 为 UI 库实际插槽名） */
         header: 'header',
+        /** 底部操作按钮插槽名（key 固定为 'actions'，value 为 UI 库实际插槽名） */
         actions: 'action',
+      },
+    },
+
+    // ====================================================================
+    // 通用组件适配器：声明式 prop/event/slot 名称映射
+    // 框架内部名 → UI 库实际名
+    // ====================================================================
+    adapters: {
+      // 表单适配器（对应 n-form）
+      form: {},
+
+      // 栅格适配器（对应 n-grid）
+      grid: {},
+
+      // 表单项适配器（对应 n-form-item）
+      formItem: {},
+
+      // 分页适配器（对应 n-pagination）
+      pagination: {},
+
+      // 下拉菜单适配器（对应 n-dropdown）
+      dropdown: {},
+
+      // 气泡确认框适配器（对应 n-popconfirm）
+      // triggerMode: 'slot' — Naive UI 用 #trigger 插槽包裹触发元素
+      // triggerSlot: 'trigger' — 插槽名固定为 'trigger'
+      // events: positive-click → confirm, negative-click → cancel
+      popconfirm: {
+        triggerMode: 'slot',
+        triggerSlot: 'trigger',
+        events: {
+          'positive-click': 'confirm',
+          'negative-click': 'cancel',
+        },
       },
     },
   },
@@ -140,6 +203,9 @@ naiveApp.mount('#app-naive')
 const antdApp = createApp(AntdDemo)
 
 antdApp.use(TableProPlugin, {
+  // ======================================================================
+  // 组件映射：框架内部组件名 → Ant Design Vue 组件
+  // ======================================================================
   components: {
     input: Input,
     textarea: Input.TextArea,
@@ -166,49 +232,101 @@ antdApp.use(TableProPlugin, {
     modal: Modal,
     pagination: Pagination,
     dropdown: AntdDropdownAdapter,
+    popconfirm: Popconfirm,
     text: Typography.Text,
   },
+
   config: {
     debug: true,
+
+    // ====================================================================
+    // 全局组件默认配置
+    // ====================================================================
     components: {
-      formItem: {
-        labelCol: { style: { width: '80px' } },
-      },
-      grid: {
-        gutter: [12, 8],
-      },
-      pagination: {
-        showQuickJumper: true,
-        showSizePicker: true,
-      },
-      modal: {
-        style: { width: '80%' },
-      },
+      // 表单组件（对应 a-form）
+      form: {},
+
+      // 栅格布局（对应 a-row）
+      // gutter: 间距（通过 adapters.grid 映射 xGap → gutter）
+      grid: { gutter: [12, 8] },
+
+      // 表单项（对应 a-form-item）
+      // labelCol: 标签列配置
+      formItem: { labelCol: { style: { width: '80px' } } },
+
+      // 表格组件（对应 a-table）
+      table: {},
+
+      // 分页组件（对应 a-pagination）
+      // pageSizes: 每页条数选项 | showSizeChanger: antd 特有，显示每页条数选择器
+      pagination: { pageSizes: [3, 6, 9], showSizeChanger: true },
+
+      // 弹窗组件（对应 a-modal）
+      modal: { style: { width: '80%' } },
     },
+
+    // ====================================================================
+    // Modal 适配器：跨 UI 库兼容
+    // key 固定（header / actions），value 为 UI 库实际插槽名
+    // ====================================================================
     modalAdapter: {
+      /** 弹窗显隐 prop 名：antd 使用 'open' */
       visibleProp: 'open',
+      /** 显隐变化事件名：与 visibleProp 对应 */
       visibleEvent: 'update:open',
       slots: {
+        /** 头部插槽名（key 固定为 'header'，value 为 UI 库实际插槽名） */
         header: 'header',
+        /** 底部操作按钮插槽名（key 固定为 'actions'，value 为 UI 库实际插槽名） */
         actions: 'footer',
       },
     },
-    // 通用适配器：声明式 prop/event 名称映射
+
+    // ====================================================================
+    // 通用组件适配器：声明式 prop/event/slot 名称映射
+    // 框架内部名 → UI 库实际名
+    // ====================================================================
     adapters: {
+      // 表单适配器（对应 a-form）
+      form: {},
+
+      // 栅格适配器（对应 a-row）
+      // xGap → gutter：框架用 xGap，antd 用 gutter
+      grid: {
+        props: { xGap: 'gutter' },
+      },
+
+      // 表单项适配器（对应 a-form-item）
+      // path → name：表单字段名 | rule → rules：校验规则
+      formItem: {
+        props: { path: 'name', rule: 'rules' },
+      },
+
+      // 分页适配器（对应 a-pagination）
+      // page → current：当前页码 | itemCount → total：总条目数
+      // pageSizes → pageSizeOptions：每页条数选项
       pagination: {
         props: {
           page: 'current',
           itemCount: 'total',
-          showSizePicker: 'showSizeChanger',
+          pageSizes: 'pageSizeOptions',
         },
         events: {
           'update:page': 'update:current',
         },
       },
-      formItem: {
-        props: {
-          path: 'name',
-          rule: 'rules',
+
+      // 下拉菜单适配器（使用 adapter 组件 AntdDropdownAdapter，无需 prop 映射）
+      dropdown: {},
+
+      // 气泡确认框适配器（对应 a-popconfirm）
+      // triggerMode: 'wrap' — antd 直接包裹子元素作为触发器
+      // events: confirm → confirm, cancel → cancel（无需映射，但显式声明保持一致）
+      popconfirm: {
+        triggerMode: 'wrap',
+        events: {
+          confirm: 'confirm',
+          cancel: 'cancel',
         },
       },
     },

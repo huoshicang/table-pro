@@ -33,7 +33,7 @@ import {
   NRadioGroup, NRadio, NCheckboxGroup, NCheckbox,
   NInputNumber, NSlider, NRate, NColorPicker,
   NButton, NForm, NFormItem, NGrid, NGridItem, NSpace,
-  NDataTable, NModal, NPagination, NDropdown,
+  NDataTable, NModal, NPagination, NDropdown, NPopconfirm,
   NTag, NTooltip, NPopover,
 } from 'naive-ui'
 
@@ -67,6 +67,7 @@ app.use(TableProPlugin, {
     modal: NModal,
     pagination: NPagination,
     dropdown: NDropdown,
+    popconfirm: NPopconfirm,
     tag: NTag,
     tooltip: NTooltip,
     popover: NPopover,
@@ -85,7 +86,16 @@ app.use(TableProPlugin, {
       visibleEvent: 'update:show',
       slots: { header: 'header', actions: 'action' },
     },
-    adapters: {},
+    adapters: {
+      popconfirm: {
+        triggerMode: 'slot',
+        triggerSlot: 'trigger',
+        events: {
+          'positive-click': 'confirm',
+          'negative-click': 'cancel',
+        },
+      },
+    },
   },
 })
 
@@ -271,6 +281,7 @@ config: {
 | `table` | 表格组件的 prop/event 映射 | 否 | `{}` |
 | `pagination` | 分页组件的 prop/event 映射 | 否 | `{}` |
 | `dropdown` | 下拉菜单组件的 prop/event 映射 | 否 | `{}` |
+| `popconfirm` | 气泡确认框的 prop/event/触发模式映射 | 否 | `{}` |
 
 #### 每个 Key 的子属性
 
@@ -279,6 +290,8 @@ config: {
 | `props` | `Record<string, string>` | prop 名称映射，key 是内部名，value 是 UI 库名 |
 | `events` | `Record<string, string>` | 事件名称映射，key 是内部名，value 是 UI 库名 |
 | `slots` | `Record<string, string>` | 插槽名称映射，key 是内部名，value 是 UI 库名 |
+
+> **popconfirm 特殊字段**：popconfirm adapter 额外支持 `triggerMode` 和 `triggerSlot`，用于配置触发器渲染方式。详见下方说明。
 
 #### 完整示例
 
@@ -292,6 +305,14 @@ config: {
     table: {},
     pagination: {},
     dropdown: {},
+    popconfirm: {
+      triggerMode: 'slot',      // Naive UI 用 #trigger 插槽
+      triggerSlot: 'trigger',   // 插槽名固定为 'trigger'
+      events: {
+        'positive-click': 'confirm',   // 确认事件映射
+        'negative-click': 'cancel',    // 取消事件映射
+      },
+    },
   },
 }
 
@@ -328,6 +349,46 @@ config: {
 
     // dropdown: antd 的 ADropdown 和内部组件 prop 名基本一致
     dropdown: {},
+
+    // popconfirm: antd 用 APopconfirm，直接包裹子元素
+    popconfirm: {
+      triggerMode: 'wrap',      // antd 直接包裹子元素作为触发器
+      events: {
+        confirm: 'confirm',     // 确认事件（无需映射，显式声明保持一致）
+        cancel: 'cancel',       // 取消事件
+      },
+    },
+  },
+}
+```
+
+#### popconfirm 触发器模式
+
+popconfirm adapter 额外支持 `triggerMode` 配置，用于描述 Popconfirm 组件如何包裹触发元素：
+
+| 配置项 | `triggerMode: 'slot'` | `triggerMode: 'wrap'` |
+|--------|----------------------|----------------------|
+| `triggerSlot` | 必填，触发器插槽名 | 不需要 |
+| `events` | 映射确认/取消事件名 | 映射确认/取消事件名 |
+| 适用场景 | Naive UI `NPopconfirm` | Ant Design Vue `APopconfirm` |
+
+```ts
+// triggerMode: 'slot' — 用插槽包裹触发元素
+popconfirm: {
+  triggerMode: 'slot',
+  triggerSlot: 'trigger',              // 触发器插槽名
+  events: {
+    'positive-click': 'confirm',       // 确认事件映射
+    'negative-click': 'cancel',        // 取消事件映射
+  },
+}
+
+// triggerMode: 'wrap' — 直接包裹子元素
+popconfirm: {
+  triggerMode: 'wrap',
+  events: {
+    confirm: 'confirm',                // 确认事件
+    cancel: 'cancel',                  // 取消事件
   },
 }
 ```
@@ -383,7 +444,7 @@ const confirmHandlers: ConfirmHandlers = {
 function getTableAction(record: RowData): ActionItem[] {
   return [
     { label: '编辑', onClick: () => tableProRef.value?.openEdit(record as any) },
-    { label: '删除', onClick: () => handleDelete(record) },
+    { label: '删除', onClick: () => handleDelete(record), confirm: { title: '确认删除该数据？' } },
   ]
 }
 
@@ -632,8 +693,38 @@ const pagination = ref({ page: 1, pageSize: 10, itemCount: 100 })
 
 | Prop | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `actions` | `ActionItem[]` | `[]` | 主要操作按钮 |
+| `actions` | `ActionItem[]` | `[]` | 主要操作按钮（配置 `confirm` 字段可启用 Popconfirm 二次确认） |
 | `dropDownActions` | `ActionItem[]` | `[]` | 下拉菜单项 |
+
+---
+
+### ConfirmButton
+
+二次确认按钮组件，封装 Popconfirm 的跨 UI 库差异。
+
+**Props：**
+
+| Prop | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `confirmTitle` | `string` | `'确认执行此操作？'` | 确认提示文案 |
+
+**Events：**
+
+| Event | 参数 | 说明 |
+|-------|------|------|
+| `confirm` | — | 用户点击确认 |
+| `cancel` | — | 用户点击取消 |
+
+**Slots：**
+
+| Slot | 说明 |
+|------|------|
+| `default` | 触发 Popconfirm 的按钮/元素 |
+
+**说明：**
+- 通过 `useComponentAdapter('popconfirm')` 映射事件名
+- 根据 `adapter.triggerMode` 决定渲染方式（`'slot'` 用插槽包裹，`'wrap'` 直接包裹）
+- 如果未注册 `popconfirm` 组件，会退化为直接渲染子元素（无确认弹框）
 
 ---
 
@@ -769,8 +860,12 @@ interface ConfirmHandlers {
 ```ts
 interface ActionItem {
   label: string                        // 按钮文案
-  onClick: () => void                  // 点击回调
+  onClick: () => void                  // 点击回调（若配置了 confirm，则在用户确认后才执行）
   meta?: Record<string, unknown>       // 按钮 v-bind 属性（如 type: 'primary'）
+  confirm?: {                          // 二次确认配置，配置后按钮会被 Popconfirm 包裹
+    title?: string                     // 确认提示文案（默认 '确认执行此操作？'）
+    onCancel?: () => void              // 取消回调（可选）
+  }
 }
 ```
 

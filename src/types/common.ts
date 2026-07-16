@@ -25,10 +25,17 @@ export interface ConfirmHandlers {
 export interface ActionItem {
   /** 按钮文案 */
   label: string
-  /** 点击回调 */
+  /** 点击回调（若配置了 confirm，则在用户确认后才执行） */
   onClick: () => void
   /** 按钮的额外属性，通过 v-bind 绑定（如 type: 'primary'、size: 'small'） */
   meta?: Record<string, unknown>
+  /** 二次确认配置，配置后按钮会被 Popconfirm 包裹 */
+  confirm?: {
+    /** 确认提示文案（默认 '确认执行此操作？'） */
+    title?: string
+    /** 取消回调（可选） */
+    onCancel?: () => void
+  }
 }
 
 // ========================================================================

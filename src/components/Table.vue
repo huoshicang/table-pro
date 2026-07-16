@@ -15,12 +15,17 @@
           </component>
           <component
             v-if="checkedRowKeys.length > 0"
-            :is="Button"
-            attr-type="button"
-            @click="handleBatchDelete"
-            type="error"
+            :is="ConfirmButton"
+            confirm-title="确认删除选中的数据？"
+            @confirm="handleBatchDelete"
           >
-            批量删除（{{ checkedRowKeys.length }}）
+            <component
+              :is="Button"
+              attr-type="button"
+              type="error"
+            >
+              批量删除（{{ checkedRowKeys.length }}）
+            </component>
           </component>
           <component
             v-if="checkedRowKeys.length > 0"
@@ -54,6 +59,7 @@ import { ref, computed, useSlots } from 'vue'
 import type { ComponentPublicInstance } from 'vue'
 import { useComponentMap } from '@/composables/useComponentMap'
 import { useMergedProps } from '@/composables/useMergedProps'
+import ConfirmButton from '@/components/ConfirmButton.vue'
 import type { TableConfig } from '@/index'
 import type { TableColumn } from '@/types/table'
 

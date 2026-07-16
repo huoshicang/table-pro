@@ -1,17 +1,36 @@
 <template>
   <component :is="Space" align="center">
     <!-- 主要操作按钮 -->
-    <component
-      v-for="action in actions"
-      :key="action.label"
-      :is="Button"
-      attr-type="button"
-      v-bind="action.meta ?? {}"
-      size="small"
-      @click="action.onClick"
-    >
-      {{ action.label }}
-    </component>
+    <template v-for="action in actions" :key="action.label">
+      <!-- 有 confirm 配置 → ConfirmButton 包裹 -->
+      <component
+        v-if="action.confirm"
+        :is="ConfirmButton"
+        :confirm-title="action.confirm.title"
+        @confirm="action.onClick"
+        @cancel="action.confirm.onCancel"
+      >
+        <component
+          :is="Button"
+          attr-type="button"
+          v-bind="action.meta ?? {}"
+          size="small"
+        >
+          {{ action.label }}
+        </component>
+      </component>
+      <!-- 无 confirm → 直接按钮 -->
+      <component
+        v-else
+        :is="Button"
+        attr-type="button"
+        v-bind="action.meta ?? {}"
+        size="small"
+        @click="action.onClick"
+      >
+        {{ action.label }}
+      </component>
+    </template>
     <!-- 下拉操作菜单 -->
     <component
       v-if="effectiveDropActions.length"
@@ -28,6 +47,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useComponentMap } from '@/composables/useComponentMap'
+import ConfirmButton from '@/components/ConfirmButton.vue'
 import type { ActionItem } from '@/types/common'
 
 export type { ActionItem }
